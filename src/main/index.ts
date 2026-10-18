@@ -17,6 +17,7 @@ import {
   changeQuickHotkey,
   hotkeyRegistered,
   registerQuickHotkey,
+  setHotkeyPaused,
   unregisterHotkeys,
 } from './hotkeys';
 import { installImageProtocol, registerImageScheme } from './images';
@@ -130,6 +131,7 @@ async function start() {
     sync,
     changeHotkey: (accel) => changeQuickHotkey(accel, toggleQuick),
     hotkeyRegistered,
+    pauseHotkey: setHotkeyPaused,
     onSettingsChanged: (next, before) => {
       if (next.theme !== before.theme) applyTheme(next.theme);
       // сменили источник данных — сразу проверить им

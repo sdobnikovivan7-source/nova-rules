@@ -42,6 +42,7 @@ const api: Api = {
     hide: () => ipcRenderer.send(COMMANDS.quickHide),
     openInMain: (route) => ipcRenderer.send(COMMANDS.quickOpenInMain, route),
   },
+  pauseHotkey: (pause) => ipcRenderer.send(COMMANDS.hotkeyPause, pause),
 };
 
 contextBridge.exposeInMainWorld('api', api);

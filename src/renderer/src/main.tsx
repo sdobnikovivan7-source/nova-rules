@@ -9,6 +9,7 @@ import './styles/layout.css';
 import './styles/document.css';
 import './styles/search.css';
 import './styles/changes.css';
+import './styles/settings.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

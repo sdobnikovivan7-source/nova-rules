@@ -10,6 +10,7 @@ import { Category } from './screens/Category';
 import { Changes } from './screens/Changes';
 import { Document } from './screens/Document';
 import { Favorites } from './screens/Favorites';
+import { Onboarding } from './screens/Onboarding';
 import { Search } from './screens/Search';
 import { Settings } from './screens/Settings';
 import { subscribeToMain, useApp } from './store';
@@ -23,6 +24,7 @@ export function App() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const ready = useApp((s) => s.ready);
+  const onboarded = useApp((s) => s.settings?.onboarded ?? true);
   useFontScale();
 
   useEffect(() => {
@@ -52,29 +54,34 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [navigate]);
 
+  const showOnboarding = ready && !onboarded;
+
   return (
-    <div className="app">
-      <Sidebar />
-      <div className="main-col">
-        {/* у «Настроек» по макету нет поля поиска — заголовок и кнопки окна внутри панели */}
-        {pathname !== '/settings' && <TopBar />}
-        <main className="content">
-          {ready && (
-            <Routes>
-              <Route path="/" element={<Navigate to="/search" replace />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/category/:id" element={<Category />} />
-              <Route path="/doc/:id" element={<Document />} />
-              <Route path="/changes" element={<Changes />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<Navigate to="/search" replace />} />
-            </Routes>
-          )}
-        </main>
+    <>
+      <div className="app" inert={showOnboarding}>
+        <Sidebar />
+        <div className="main-col">
+          {/* у «Настроек» по макету нет поля поиска — заголовок и кнопки окна внутри панели */}
+          {pathname !== '/settings' && <TopBar />}
+          <main className="content">
+            {ready && (
+              <Routes>
+                <Route path="/" element={<Navigate to="/search" replace />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/category/:id" element={<Category />} />
+                <Route path="/doc/:id" element={<Document />} />
+                <Route path="/changes" element={<Changes />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<Navigate to="/search" replace />} />
+              </Routes>
+            )}
+          </main>
+        </div>
+        <StatusBar />
+        <Toast />
       </div>
-      <StatusBar />
-      <Toast />
-    </div>
+      {showOnboarding && <Onboarding />}
+    </>
   );
 }

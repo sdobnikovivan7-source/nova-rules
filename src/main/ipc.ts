@@ -31,6 +31,7 @@ export type IpcContext = {
   /** Сменить глобальную горячую клавишу; false — сочетание занято или недопустимо */
   changeHotkey(accel: string): boolean;
   hotkeyRegistered(): boolean;
+  pauseHotkey(pause: boolean): void;
   /** Применить изменённые настройки (тема, автозапуск, пин, источник данных…) */
   onSettingsChanged(next: Settings, before: Settings): void;
   /** Избранное или «просмотрено» изменились — бейджи, трей */
@@ -50,6 +51,7 @@ const SettingsPatch = z
     quickAlwaysOnTop: z.boolean(),
     notifyChanges: z.boolean(),
     syncMode: z.enum(['auto', 'direct']),
+    onboarded: z.boolean(),
   })
   .partial()
   .strict();
@@ -172,6 +174,11 @@ export function registerIpc(ctx: IpcContext): void {
   // команды окна: только от окна-отправителя
   ipcMain.on(COMMANDS.windowMinimize, (e) => BrowserWindow.fromWebContents(e.sender)?.minimize());
   ipcMain.on(COMMANDS.windowClose, (e) => BrowserWindow.fromWebContents(e.sender)?.close());
+
+  // запись нового сочетания в настройках
+  ipcMain.on(COMMANDS.hotkeyPause, (_e, pause: unknown) => {
+    if (typeof pause === 'boolean') ctx.pauseHotkey(pause);
+  });
 
   // окно быстрого поиска
   ipcMain.on(COMMANDS.quickShow, () => showQuick());

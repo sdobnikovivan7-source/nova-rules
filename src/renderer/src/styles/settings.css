@@ -1,0 +1,247 @@
+/* Настройки (макет «Настройки», §3 дизайна: карточки 18px, зазор 12px) */
+.set-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--gap-settings);
+  align-items: stretch;
+  padding: 4px 22px 22px 26px;
+}
+
+.set-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+  border-radius: var(--r-card);
+  background: var(--bg-card);
+}
+
+.set-card.wide {
+  grid-column: 1 / -1;
+}
+
+.set-card-title {
+  font-size: var(--fs-h2-card);
+  font-weight: 700;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 34px;
+}
+
+.set-label {
+  min-width: 0;
+  color: var(--text-rule);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+}
+
+.set-hint,
+.set-note {
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
+  line-height: 1.5;
+}
+
+.set-note {
+  margin-top: -6px;
+}
+
+.set-hint .warn,
+.set-note.warn {
+  color: var(--accent-text);
+}
+
+.set-row > .segments {
+  flex-shrink: 0;
+}
+
+/* размер текста: − 100% + */
+.set-stepper {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.set-stepper .btn {
+  width: 34px;
+  padding: 0;
+}
+
+.set-scale {
+  min-width: 52px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* горячая клавиша */
+.set-hotkey {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.set-keys {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+}
+
+.set-recording {
+  color: var(--accent-text);
+  font-size: var(--fs-meta);
+}
+
+/* о программе */
+.set-about {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.set-about-text {
+  max-width: 560px;
+  color: var(--text-tertiary);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+}
+
+.set-about-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+@media (max-width: 1000px) {
+  .set-about {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ── Первый запуск ───────────────────────────────────────── */
+.onb-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 0.55);
+  -webkit-app-region: drag;
+}
+
+.onb {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: min(560px, 100%);
+  max-height: 100%;
+  padding: 26px 28px 24px;
+  overflow-y: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-panel);
+  background: var(--bg-panel);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  -webkit-app-region: no-drag;
+}
+
+.onb-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.onb-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-row);
+}
+
+.onb-title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.onb-sub {
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
+}
+
+.onb-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.onb-feature {
+  display: flex;
+  gap: 14px;
+}
+
+.onb-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-chip);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.onb-feature-title {
+  margin-bottom: 3px;
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.onb-feature-text {
+  color: var(--text-tertiary);
+  font-size: var(--fs-small);
+  line-height: 1.55;
+}
+
+.onb-keys {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+
+.onb-autostart {
+  padding: 14px 16px;
+  border-radius: var(--r-card);
+  background: var(--bg-card);
+}
+
+.onb-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.onb-disclaimer {
+  color: var(--text-faint);
+  font-size: var(--fs-tiny);
+  line-height: 1.45;
+}
+
+.onb-foot .btn {
+  flex-shrink: 0;
+  padding: 0 28px;
+}

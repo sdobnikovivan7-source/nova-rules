@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { isAllowedImage } from '../src/main/urls';
 import { proxyImages } from '../src/renderer/src/images';
-import { count, plural, RULES, stripSectionNumber } from '../src/renderer/src/format';
+import { count, fmtWhen, plural, RULES, stripSectionNumber } from '../src/renderer/src/format';
+import { hotkeyFromEvent, hotkeyParts } from '../src/renderer/src/hotkey';
 
 describe('plural', () => {
   it.each([
@@ -80,5 +81,59 @@ describe('пословный diff по-русски', () => {
     });
     expect(parts.filter((p) => p.removed).map((p) => p.value)).toEqual(['Суббота']);
     expect(parts.filter((p) => p.added).map((p) => p.value)).toEqual(['Воскресенье']);
+  });
+});
+
+describe('запись горячей клавиши', () => {
+  const key = (
+    code: string,
+    mods: Partial<Record<'ctrl' | 'alt' | 'shift' | 'meta', boolean>> = {},
+  ) =>
+    hotkeyFromEvent({
+      code,
+      ctrlKey: !!mods.ctrl,
+      altKey: !!mods.alt,
+      shiftKey: !!mods.shift,
+      metaKey: !!mods.meta,
+    });
+
+  it('Ctrl+Shift+Space', () =>
+    expect(key('Space', { ctrl: true, shift: true })).toEqual({
+      kind: 'done',
+      accel: 'Control+Shift+Space',
+    }));
+  it('Alt+буква и цифра', () => {
+    expect(key('KeyR', { alt: true })).toEqual({ kind: 'done', accel: 'Alt+R' });
+    expect(key('Digit5', { ctrl: true, alt: true })).toEqual({
+      kind: 'done',
+      accel: 'Control+Alt+5',
+    });
+  });
+  it('Win → Super, цифровой блок', () =>
+    expect(key('Numpad3', { meta: true })).toEqual({ kind: 'done', accel: 'Super+num3' }));
+  it('F-клавиши без модификаторов', () => expect(key('F8')).toEqual({ kind: 'done', accel: 'F8' }));
+  it('только модификаторы — ждём клавишу', () =>
+    expect(key('ShiftLeft', { ctrl: true, shift: true })).toEqual({
+      kind: 'pending',
+      parts: ['Control', 'Shift'],
+    }));
+  it('буква без Ctrl / Alt / Win — нельзя', () => {
+    expect(key('KeyA').kind).toBe('invalid');
+    expect(key('KeyA', { shift: true }).kind).toBe('invalid');
+  });
+  it('неизвестная клавиша — нельзя', () =>
+    expect(key('MediaPlayPause', { ctrl: true }).kind).toBe('invalid'));
+  it('подписи для kbd', () => {
+    expect(hotkeyParts('Control+Shift+Space')).toEqual(['Ctrl', 'Shift', 'Space']);
+    expect(hotkeyParts('Super+numadd')).toEqual(['Win', 'Num +']);
+  });
+});
+
+describe('fmtWhen', () => {
+  const now = new Date(2026, 9, 18, 12, 0);
+  it('сегодня / вчера / дата', () => {
+    expect(fmtWhen(new Date(2026, 9, 18, 6, 12).toISOString(), now)).toBe('сегодня в 06:12');
+    expect(fmtWhen(new Date(2026, 9, 17, 23, 40).toISOString(), now)).toBe('вчера в 23:40');
+    expect(fmtWhen(new Date(2026, 9, 14, 6, 5).toISOString(), now)).toBe('14.10.2026 в 06:05');
   });
 });

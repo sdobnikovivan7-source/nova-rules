@@ -25,6 +25,8 @@ export type Settings = {
   quickAlwaysOnTop: boolean;
   notifyChanges: boolean;
   syncMode: SyncMode;
+  /** Окно первого запуска уже показано */
+  onboarded: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -37,6 +39,7 @@ export const DEFAULT_SETTINGS: Settings = {
   quickAlwaysOnTop: false,
   notifyChanges: true,
   syncMode: 'auto',
+  onboarded: false,
 };
 
 export const FONT_SCALE_MIN = 0.9;
@@ -221,6 +224,8 @@ export const COMMANDS = {
   quickShow: 'cmd:quickShow',
   quickHide: 'cmd:quickHide',
   quickOpenInMain: 'cmd:quickOpenInMain',
+  /** Запись нового сочетания в настройках: снять / вернуть глобальную клавишу */
+  hotkeyPause: 'cmd:hotkeyPause',
 } as const;
 
 export interface Api extends InvokeApi {
@@ -232,4 +237,5 @@ export interface Api extends InvokeApi {
   onQuickShown(cb: () => void): () => void;
   window: { minimize(): void; close(): void };
   quick: { show(): void; hide(): void; openInMain(route: string): void };
+  pauseHotkey(pause: boolean): void;
 }
