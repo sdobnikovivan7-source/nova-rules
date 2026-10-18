@@ -27,6 +27,7 @@
     "parse-report": "tsx --tsconfig tsconfig.node.json scripts/parse-report.ts",
     "demo-db": "tsx --tsconfig tsconfig.node.json scripts/demo-db.ts",
     "icons": "electron scripts/make-icons.mjs",
+    "promo": "electron scripts/make-promo.mjs",
     "dist": "electron-vite build && electron-builder --win --publish never"
   },
   "pnpm": {
