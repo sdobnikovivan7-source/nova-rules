@@ -1,0 +1,31 @@
+name: Ошибка в приложении
+description: Что-то не работает или работает не так
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Что случилось
+      description: Что делали, что ожидали увидеть и что произошло. Можно приложить скриншот.
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: Версия приложения
+      description: «Настройки → О программе» (подставляется, если открыть из приложения)
+  - type: input
+    id: data
+    attributes:
+      label: Версия данных
+  - type: input
+    id: windows
+    attributes:
+      label: Версия Windows
+      placeholder: Windows 11 23H2
+  - type: textarea
+    id: logs
+    attributes:
+      label: Лог
+      description: «Настройки → О программе → Папка логов» → main.log (последние строки)
+      render: text

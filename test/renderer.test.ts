@@ -4,6 +4,8 @@ import { isAllowedImage } from '../src/main/urls';
 import { proxyImages } from '../src/renderer/src/images';
 import { count, fmtWhen, plural, RULES, stripSectionNumber } from '../src/renderer/src/format';
 import { hotkeyFromEvent, hotkeyParts } from '../src/renderer/src/hotkey';
+import { bugIssueUrl, ruleIssueUrl } from '../src/renderer/src/issues';
+import { REPO_URL, threadUrl } from '../src/shared/ipc';
 
 describe('plural', () => {
   it.each([
@@ -136,4 +138,35 @@ describe('fmtWhen', () => {
     expect(fmtWhen(new Date(2026, 9, 17, 23, 40).toISOString(), now)).toBe('вчера в 23:40');
     expect(fmtWhen(new Date(2026, 9, 14, 6, 5).toISOString(), now)).toBe('14.10.2026 в 06:05');
   });
+});
+
+describe('ссылки на задачи GitHub', () => {
+  const params = (url: string) => Object.fromEntries(new URL(url).searchParams);
+
+  it('пункт → форма rule.yml с ID, темой и версиями', () => {
+    const url = ruleIssueUrl({ id: '406244:1.2', number: '1.2' }, threadUrl(406244), {
+      version: '1.0.0',
+      dataVersion: 7,
+    });
+    expect(url.startsWith(`${REPO_URL}/issues/new?`)).toBe(true);
+    expect(params(url)).toEqual({
+      template: 'rule.yml',
+      title: 'Пункт отображается неправильно: п. 1.2',
+      rule: '406244:1.2',
+      thread: 'https://forum.grand-rp.su/threads/406244/',
+      app: '1.0.0',
+      data: '7',
+    });
+  });
+
+  it('пункт без номера — ID в заголовке', () =>
+    expect(params(ruleIssueUrl({ id: '402990:p3', number: null }, 'x', {})).title).toBe(
+      'Пункт отображается неправильно: 402990:p3',
+    ));
+
+  it('ошибка приложения → bug.yml, пустые версии не передаются', () =>
+    expect(params(bugIssueUrl({ version: '1.0.0' }))).toEqual({
+      template: 'bug.yml',
+      app: '1.0.0',
+    }));
 });

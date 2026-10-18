@@ -1,0 +1,33 @@
+name: Пункт отображается неправильно
+description: Пункт правил разобран с ошибкой — не тот текст, номер, наказание, примечание
+title: 'Пункт отображается неправильно: '
+labels: [parser]
+body:
+  - type: input
+    id: rule
+    attributes:
+      label: ID пункта
+      description: Подставляется из приложения (правая кнопка по пункту → «Пункт отображается неправильно»)
+      placeholder: '406244:1.2'
+    validations:
+      required: true
+  - type: input
+    id: thread
+    attributes:
+      label: Тема на форуме
+      placeholder: https://forum.grand-rp.su/threads/406244/
+  - type: textarea
+    id: what
+    attributes:
+      label: Что не так
+      description: Как пункт выглядит в приложении и как на форуме. Можно приложить скриншот.
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: Версия приложения
+  - type: input
+    id: data
+    attributes:
+      label: Версия данных

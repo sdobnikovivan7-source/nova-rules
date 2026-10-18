@@ -7,7 +7,6 @@ import { type ReactNode, useEffect, useId, useState } from 'react';
 import {
   FONT_SCALE_MAX,
   FONT_SCALE_MIN,
-  REPO_URL,
   type Settings as SettingsT,
   type SyncMode,
   type Theme,
@@ -18,6 +17,7 @@ import { Button, Kbd, SegmentGroup, Toggle } from '../components/ui';
 import { changeFontScale } from '../fontScale';
 import { fmtDay, fmtWhen } from '../format';
 import { hotkeyFromEvent, hotkeyParts } from '../hotkey';
+import { bugIssueUrl } from '../issues';
 import { useApp } from '../store';
 
 const THEMES = [
@@ -253,18 +253,6 @@ function SyncCard({ mode }: { mode: SyncMode }) {
   );
 }
 
-/** Новая задача в GitHub Issues с версиями приложения и данных */
-function bugReportUrl(version?: string, dataVersion?: number): string {
-  const body = [
-    `**Версия приложения:** ${version ?? '—'}`,
-    `**Версия данных:** ${dataVersion ?? '—'}`,
-    '',
-    '**Что случилось:**',
-    '',
-  ].join('\n');
-  return `${REPO_URL}/issues/new?${new URLSearchParams({ body }).toString()}`;
-}
-
 function AboutCard() {
   const info = useApp((s) => s.info);
   const data = info?.dataBuiltAt ? `данные от ${fmtDay(info.dataBuiltAt)}` : 'данных пока нет';
@@ -277,10 +265,7 @@ function AboutCard() {
           правилами, GitHub и форуму.
         </p>
         <div className="set-about-actions">
-          <Button
-            variant="outline"
-            onClick={() => void api.openExternal(bugReportUrl(info?.version, info?.dataVersion))}
-          >
+          <Button variant="outline" onClick={() => void api.openExternal(bugIssueUrl(info ?? {}))}>
             Сообщить об ошибке
           </Button>
           <Button variant="outline" onClick={() => void api.openLogsFolder()}>
