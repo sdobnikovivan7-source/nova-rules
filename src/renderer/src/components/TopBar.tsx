@@ -16,6 +16,11 @@ export function TopBar() {
   const { pathname } = useLocation();
   const input = useRef<HTMLInputElement>(null);
 
+  // открыли «Поиск» — сразу можно печатать
+  useEffect(() => {
+    if (pathname === '/search') input.current?.focus();
+  }, [pathname]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const typing =

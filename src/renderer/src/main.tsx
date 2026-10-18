@@ -7,6 +7,7 @@ import './styles/theme-light.css';
 import './styles/components.css';
 import './styles/layout.css';
 import './styles/document.css';
+import './styles/search.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

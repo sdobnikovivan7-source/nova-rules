@@ -349,16 +349,19 @@ export function getSearchCorpus(db: Db): SearchRow[] {
   const rows = db
     .prepare(
       `SELECT r.id, r.doc_id AS docId, d.category_id AS categoryId, d.title AS docTitle, s.title AS sectionTitle,
-         r.number, r.text, r.punish_kinds AS punishKinds, d.important
+         r.number, r.text, r.notes_json AS notesJson, r.punish_raw AS punish,
+         r.punish_kinds AS punishKinds, d.important
        FROM rules r JOIN docs d ON d.id = r.doc_id JOIN sections s ON s.id = r.section_id
        ORDER BY d.category_id, d.sort, r.sort`,
     )
-    .all() as (Omit<SearchRow, 'punishKinds' | 'important'> & {
+    .all() as (Omit<SearchRow, 'punishKinds' | 'important' | 'notes'> & {
+    notesJson: string | null;
     punishKinds: string | null;
     important: number;
   })[];
-  return rows.map((r) => ({
+  return rows.map(({ notesJson, ...r }) => ({
     ...r,
+    notes: notesJson ? (JSON.parse(notesJson) as Note[]).map((n) => n.text).join(' ') : '',
     punishKinds: r.punishKinds ? (JSON.parse(r.punishKinds) as PunishKind[]) : [],
     important: r.important === 1,
   }));

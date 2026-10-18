@@ -30,6 +30,8 @@ export const count = (n: number, forms: readonly [string, string, string]) =>
 
 export const RULES = ['пункт', 'пункта', 'пунктов'] as const;
 export const DOCS = ['документ', 'документа', 'документов'] as const;
+/** «в 1 документе», «в 3 документах» */
+export const DOCS_IN = ['документе', 'документах', 'документах'] as const;
 export const CHANGES = ['изменение', 'изменения', 'изменений'] as const;
 
 /** 'Control+Shift+Space' → 'Ctrl+Shift+Space' */

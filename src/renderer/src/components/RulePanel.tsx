@@ -22,9 +22,11 @@ type Props = {
   onClose(): void;
   /** В поиске вместо «В избранное / На форуме» — «Открыть в документе» */
   onOpenInDoc?: () => void;
+  /** Подсветить совпадения поиска в тексте */
+  highlight?: readonly string[] | undefined;
 };
 
-export function RulePanel({ rule, change, onClose, onOpenInDoc }: Props) {
+export function RulePanel({ rule, change, onClose, onOpenInDoc, highlight }: Props) {
   const favorite = useApp((s) => s.favoriteIds.has(rule.id));
   const toggleFavorite = useApp((s) => s.toggleFavorite);
 
@@ -65,7 +67,7 @@ export function RulePanel({ rule, change, onClose, onOpenInDoc }: Props) {
 
         {rule.number && <p className="rule-num-xl mono">п. {rule.number}</p>}
         <div className="rule-detail selectable">
-          <RichHtml html={rule.html} />
+          <RichHtml html={rule.html} highlight={highlight} />
         </div>
 
         {rule.punishment && (

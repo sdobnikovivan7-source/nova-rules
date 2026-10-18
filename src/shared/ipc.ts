@@ -79,6 +79,10 @@ export type SearchRow = {
   sectionTitle: string | null;
   number: string | null;
   text: string;
+  /** Текст примечаний через пробел */
+  notes: string;
+  /** Наказание как в правилах («JAIL до 90 минут») */
+  punish: string | null;
   punishKinds: PunishKind[];
   important: boolean;
 };
