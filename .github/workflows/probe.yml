@@ -5,11 +5,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          UA="NovaRulesBot/1.0 (+https://github.com/sdobnikovivan7-source/nova-rules)"
-          for u in https://forum.grand-rp.su/forums/893/ https://forum.grand-rp.su/threads/403002/; do
-            echo "=== $u"
-            curl -sS -A "$UA" -D - -o body.html "$u" | head -30
-            wc -c body.html; grep -o '<title>[^<]*' body.html; grep -c structItem--thread body.html
-            head -c 1500 body.html; echo
+          set +e
+          BOT="NovaRulesBot/1.0 (+https://github.com/sdobnikovivan7-source/nova-rules)"
+          BR="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36"
+          for u in https://forum.grand-rp.su/ https://forum.grand-rp.su/forums/893/ https://forum.grand-rp.su/forums/1242/index.rss https://forum.grand-rp.su/threads/403002/; do
+            for ua in "$BOT" "$BR"; do
+              code=$(curl -sS -A "$ua" -o body.html -w '%{http_code}' "$u")
+              echo "$code $(wc -c < body.html) [$ua] $u :: $(head -c 120 body.html | tr '\n' ' ')"
+            done
           done
-          curl -sS https://ipinfo.io/json | head -10
+          curl -sS https://ipinfo.io/json
