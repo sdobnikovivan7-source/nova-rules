@@ -1,0 +1,13 @@
+node_modules/
+out/
+dist/
+prev/
+.cache/
+coverage/
+*.log
+.env
+.DS_Store
+Thumbs.db
+# снимок данных подкладывается при сборке релиза
+resources/seed/*
+!resources/seed/.gitkeep

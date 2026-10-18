@@ -1,0 +1,12 @@
+{
+  "baseUrl": "https://forum.grand-rp.su",
+  "userAgent": "NovaRulesBot/1.0 (+https://github.com/<user>/nova-rules)",
+  "categories": [
+    { "id": "general", "title": "Общие", "fullTitle": "Общие правила", "icon": "FileText", "order": 1, "forumId": 1242 },
+    { "id": "events", "title": "Мероприятия", "fullTitle": "Правила мероприятий", "icon": "Flag", "order": 2, "forumId": 1243 },
+    { "id": "crime", "title": "Криминальные", "fullTitle": "Криминальные организации", "icon": "Crosshair", "order": 3, "forumId": 896 },
+    { "id": "gov", "title": "Госструктуры", "fullTitle": "Государственные структуры", "icon": "Shield", "order": 4, "forumId": 895 },
+    { "id": "families", "title": "Семьи", "fullTitle": "Неофициальные организации и семьи", "icon": "Users", "order": 5, "forumId": 1135 },
+    { "id": "forum", "title": "Форум", "fullTitle": "Правила форума", "icon": "MessageSquare", "order": 6, "threadIds": [403002] }
+  ]
+}

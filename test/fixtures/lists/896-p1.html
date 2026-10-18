@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html id="XF" lang="ru-RU" dir="LTR"
+	  data-xf="2.3"
+	  data-app="public"
+	  data-template="forum_view"
+	  data-container-key="node-896"
+	  data-content-key="forum-896"
+	  data-logged-in="false"
+	  data-cookie-prefix="xf_"
+	  data-csrf="1792325840,e015e654525b893634ec72a67a8c2b17"
+	  class="has-no-js template-forum_view"
+	  
+data-variation=""
+data-color-scheme="light">
+<head>
+	
+	
+	
+
+	<meta charset="utf-8" />
+	<link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
+
+	<script>
+		(function() {
+			// data-variation и data-color-scheme уже выставлены СЕРВЕРОМ корректно
+			// (XF читает предпочтение пользователя из БД для залогиненных, из cookie для гостей).
+			// Нам нужно вмешаться ТОЛЬКО для системной темы (variation === ''),
+			// чтобы применить предпочтение ОС — сервер не знает его.
+			var html = document.documentElement;
+			var variation = html.getAttribute('data-variation') || '';
+			var isDarkOS = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+			if (variation === '') {
+				// Системная тема — применяем предпочтение ОС
+				html.setAttribute('data-color-scheme', isDarkOS ? 'dark' : 'light');
+			}
+			// Для 'default' (светлая) и 'alternate' (тёмная) сервер уже выставил
+			// data-color-scheme правильно — не трогаем.
+
+			// Маркер для JS меню и CSS иконки
+			html.setAttribute('data-actual-variation', variation);
+		})();
+	</script>
+	<title>Правила для криминальных организаций | NOVA RP | Форум</title>
+	<link rel="manifest" href="/webmanifest.php">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+	
+		
+			
+				<meta name="theme-color" media="(prefers-color-scheme: light)" content="#191919" />
+				<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#ffffff" />
+				
+		
+		
+
+	<meta name="apple-mobile-web-app-title" content="NovaRP форум">
+	
+		<link rel="apple-touch-icon" href="https://forum.grand-rp.su/img/logo.png" />
+	
+
+	
+		<link rel="canonical" href="https://forum.grand-rp.su/forums/896/" />
+	
+		<link rel="alternate" type="application/rss+xml" title="RSS лента для Правила для криминальных организаций" href="/forums/896/index.rss" />
+	
+
+	
+		
+	
+	
+	<meta property="og:site_name" content="NOVA RP | Форум" />
+
+
+	
+	
+		
+	
+	
+	<meta property="og:type" content="website" />
+
+
+	
+	
+		
+	
+	
+	
+		<meta property="og:title" content="Правила для криминальных организаций" />
+		<meta property="twitter:title" content="Правила для криминальных организаций" />
+	
+
+
+	
+	
+	
+		
+	
+	
+	<meta property="og:url" content="https://forum.grand-rp.su/forums/896/" />
+
+
+	
+	
+		
+	
+	
+	
+		<meta property="og:image" content="https://forum.grand-rp.su/img/logo.png" />
+		<meta property="twitter:image" content="https://forum.grand-rp.su/img/logo.png" />
+		<meta property="twitter:card" content="summary" />
+	
+
+
+	
+
+	
+	
+	
+		
+	
+	
+
+	<link rel="stylesheet" href="/css.php?css=public%3Anormalize.css%2Cpublic%3Afa.css%2Cpublic%3Avariations.less%2Cpublic%3Acore.less%2Cpublic%3Aapp.less&amp;s=31&amp;l=8&amp;d=1791777871&amp;k=c624065831dce54f715a2912898c9b32c9acc812" />
+
+	<link rel="stylesheet" href="/css.php?css=public%3Agrand_id.less%2Cpublic%3Anotices.less%2Cpublic%3Astructured_list.less%2Cpublic%3Aextra.less&amp;s=31&amp;l=8&amp;d=1791777871&amp;k=988951d48a0e720065e67580606409a8a86c46dd" />
+
+
+	
+		<script src="/js/xf/preamble.min.js?_v=7d6234ef"></script>
+	
+
+	
+	<script src="/js/vendor/vendor-compiled.js?_v=7d6234ef" defer></script>
+	<script src="/js/xf/core-compiled.js?_v=7d6234ef" defer></script>
+
+	<script>
+		XF.ready(() =>
+		{
+			XF.extendObject(true, XF.config, {
+				// 
+				userId: 0,
+				enablePush: true,
+				pushAppServerKey: 'BOPZgBLgoiRks6WVFvrnZGdBm6mm0IitY1vzLSSPihEa4Sh7EhFRvMUu2kQQHF6NG64ZoOiHdgWkuLbt1JOZo4U',
+				url: {
+					fullBase: 'https://forum.grand-rp.su/',
+					basePath: '/',
+					css: '/css.php?css=__SENTINEL__&s=31&l=8&d=1791777871',
+					js: '/js/__SENTINEL__?_v=7d6234ef',
+					icon: '/data/local/icons/__VARIANT__.svg?v=1791777872#__NAME__',
+					iconInline: '/styles/fa/__VARIANT__/__NAME__.svg?v=5.15.3',
+					keepAlive: '/login/keep-alive'
+				},
+				cookie: {
+					path: '/',
+					domain: '',
+					prefix: 'xf_',
+					secure: true,
+					consentMode: 'simple',
+					consented: ["optional","_third_party"]
+				},
+				cacheKey: 'f3ed7234243583f554e27d349fe769c5',
+				csrf: '1792325840,e015e654525b893634ec72a67a8c2b17',
+				js: {},
+				fullJs: false,
+				css: {"public:grand_id.less":true,"public:notices.less":true,"public:structured_list.less":true,"public:extra.less":true},
+				time: {
+					now: 1792325840,
+					today: 1792270800,
+					todayDow: 0,
+					tomorrow: 1792357200,
+					yesterday: 1792184400,
+					week: 1791752400,
+					month: 1790802000,
+					year: 1767214800
+				},
+				style: {
+					light: 'default',
+					dark: 'alternate',
+					defaultColorScheme: 'light'
+				},
+				borderSizeFeature: '3px',
+				fontAwesomeWeight: 'r',
+				enableRtnProtect: true,
+				
+				enableFormSubmitSticky: true,
+				imageOptimization: '0',
+				imageOptimizationQuality: 0.85,
+				uploadMaxFilesize: 67108864,
+				uploadMaxWidth: 0,
+				uploadMaxHeight: 0,
+				allowedVideoExtensions: ["m4v","mov","mp4","mp4v","mpeg","mpg","ogv","webm"],
+				allowedAudioExtensions: ["mp3","opus","ogg","wav"],
+				shortcodeToEmoji: true,
+				visitorCounts: {
+					conversations_unread: '0',
+					alerts_unviewed: '0',
+					total_unread: '0',
+					title_count: true,
+					icon_indicator: true
+				},
+				jsMt: {"xf\/action.js":"1b32405b","xf\/embed.js":"2ee26eae","xf\/form.js":"94f14f35","xf\/structure.js":"40aa8677","xf\/tooltip.js":"1b32405b"},
+				jsState: {},
+				publicMetadataLogoUrl: 'https://forum.grand-rp.su/img/logo.png',
+				publicPushBadgeUrl: 'https://forum.grand-rp.su/styles/default/xenforo/bell.png'
+			})
+
+			XF.extendObject(XF.phrases, {
+				// 
+"time.day": "{count} day",
+"time.days": "{count} дней",
+"time.hour": "{count} hour",
+"time.hours": "{count} часов",
+"time.minute": "{count} minute",
+"time.minutes": "{count} минут",
+"time.month": "{count} month",
+"time.months": "{count} месяцев",
+"time.second": "{count} second",
+"time.seconds": "{count} секунд",
+"time.week": "time.week",
+"time.weeks": "{count} недель",
+"time.year": "{count} year",
+"time.years": "{count} лет",
+				date_x_at_time_y:     "{date} в {time}",
+				day_x_at_time_y:      "{day} в {time}",
+				yesterday_at_x:       "Вчера в {time}",
+				x_minutes_ago:        "{minutes} мин. назад",
+				one_minute_ago:       "Минуту назад",
+				a_moment_ago:         "Только что",
+				today_at_x:           "Сегодня в {time}",
+				in_a_moment:          "Через секунду",
+				in_a_minute:          "Через минуту",
+				in_x_minutes:         "Через {minutes} мин.",
+				later_today_at_x:     "Сегодня в {time}",
+				tomorrow_at_x:        "Завтра в {time}",
+				short_date_x_minutes: "{minutes} м.",
+				short_date_x_hours:   "{hours} ч.",
+				short_date_x_days:    "{days} д.",
+
+				day0: "Воскресенье",
+				day1: "Понедельник",
+				day2: "Вторник",
+				day3: "Среда",
+				day4: "Четверг",
+				day5: "Пятница",
+				day6: "Суббота",
+
+				dayShort0: "Вс",
+				dayShort1: "Пн",
+				dayShort2: "Вт",
+				dayShort3: "Ср",
+				dayShort4: "Чт",
+				dayShort5: "Пт",
+				dayShort6: "Сб",
+
+				month0: "Январь",
+				month1: "Февраль",
+				month2: "Март",
+				month3: "Апрель",
+				month4: "Май",
+				month5: "Июнь",
+				month6: "Июль",
+				month7: "Август",
+				month8: "Сентябрь",
+				month9: "Октябрь",
+				month10: "Ноябрь",
+				month11: "Декабрь",
+
+				active_user_changed_reload_page: "Ваша сессия истекла. Перезагрузите страницу.",
+				server_did_not_respond_in_time_try_again: "Сервер не ответил вовремя. Пожалуйста, попробуйте снова.",
+				oops_we_ran_into_some_problems: "Упс! Мы столкнулись с некоторыми проблемами.",
+				oops_we_ran_into_some_problems_more_details_console: "Упс! Мы столкнулись с некоторыми проблемами. Пожалуйста, попробуйте позже. Более детальную информацию об ошибке Вы можете посмотреть в консоли браузера",
+				file_too_large_to_upload: "Файл слишком большой для загрузки.",
+				uploaded_file_is_too_large_for_server_to_process: "Загружаемый файл слишком большой для обработки сервером.",
+				files_being_uploaded_are_you_sure: "Файлы ещё загружаются. Вы уверены, что хотите отправить эту форму?",
+				attach: "Прикрепить файлы",
+				rich_text_box: "Текстовое поле с поддержкой форматирования",
+				close: "Закрыть",
+				link_copied_to_clipboard: "Ссылка скопирована в буфер обмена.",
+				text_copied_to_clipboard: "Текст скопирован в буфер обмена.",
+				loading: "Загрузка...",
+				you_have_exceeded_maximum_number_of_selectable_items: "Вы превысили максимальное количество выбираемых элементов.",
+
+				processing: "Обработка",
+				'processing...': "Обработка...",
+
+				showing_x_of_y_items: "Показано {count} из {total} элементов",
+				showing_all_items: "Показаны все элементы",
+				no_items_to_display: "Нет элементов для отображения",
+
+				number_button_up: "Увеличить",
+				number_button_down: "Уменьшить",
+
+				push_enable_notification_title: "Push-уведомления для сайта NOVA RP | Форум успешно включены",
+				push_enable_notification_body: "Спасибо за включение push-уведомлений!",
+
+				pull_down_to_refresh: "Потяните вниз для обновления",
+				release_to_refresh: "Отпустите для обновления",
+				refreshing: "Обновление..."
+			})
+		})
+	</script>
+
+	
+
+
+	
+
+	
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-83612403-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'UA-83612403-1', {
+			// 
+			
+			
+		});
+	</script>
+
+
+
+</head>
+<body data-template="forum_view">
+
+<div class="p-pageWrapper" id="top">
+
+	
+
+	
+
+	<header class="grand-header">
+		<div class="grand-header__inner">
+
+			<button class="grand-header__burger button--plain" data-xf-click="off-canvas" data-menu=".js-headerOffCanvasMenu" aria-label="Меню">
+				<i class="fa--xf far fa-bars "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#bars"></use></svg></i>
+			</button>
+
+			<div class="grand-header__logo">
+
+
+				<a href="https://forum.grand-rp.su">
+					
+
+	
+
+	
+		
+		
+
+		
+	
+		
+		
+
+		
+	
+
+	
+
+	<picture data-variations="{&quot;default&quot;:{&quot;1&quot;:&quot;\/data\/assets\/logo_default\/white.svg?v=2&quot;,&quot;2&quot;:null},&quot;alternate&quot;:{&quot;1&quot;:&quot;\/data\/assets\/logo_alternate\/black.svg?v=2&quot;,&quot;2&quot;:null}}">
+		
+		
+		
+
+		
+			
+			
+			
+
+			
+				<source srcset="/data/assets/logo_alternate/black.svg?v=2" media="(prefers-color-scheme: dark)" />
+			
+		
+
+		<img src="/data/assets/logo_default/white.svg?v=2"  width="100" height="36" alt="NOVA RP | Форум"  />
+	</picture>
+
+
+				</a>
+			</div>
+
+			<nav class="grand-header__nav">
+				
+
+
+
+				
+					
+	<div class="p-navEl " >
+	
+
+		
+	
+	<a href="https://novarp.ru/"
+	class="p-navEl-link "
+	
+	data-xf-key="1"
+	data-nav-id="home">Главная</a>
+
+
+		
+
+		
+	
+	</div>
+
+				
+					
+	<div class="p-navEl is-selected" data-has-children="true">
+	
+
+		
+	
+	<a href="/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="forums">Форум</a>
+
+
+		<a data-xf-key="2"
+									 data-xf-click="menu"
+									 data-menu-pos-ref="< .p-navEl"
+									 class="p-navEl-splitTrigger"
+									 role="button"
+									 tabindex="0"
+									 aria-label="Переключатель раскрытия"
+									 aria-expanded="false"
+									 aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/whats-new/posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="newPosts">Новые сообщения</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/search/?type=post"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="searchForums">Поиск по форуму</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+				
+					
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/whats-new/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="whatsNew">Что нового</a>
+
+
+		<a data-xf-key="3"
+									 data-xf-click="menu"
+									 data-menu-pos-ref="< .p-navEl"
+									 class="p-navEl-splitTrigger"
+									 role="button"
+									 tabindex="0"
+									 aria-label="Переключатель раскрытия"
+									 aria-expanded="false"
+									 aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/featured/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="featured">Рекомендованный контент</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="whatsNewPosts">Новые сообщения</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/latest-activity"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="latestActivity">Недавняя активность</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+				
+					
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/members/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="members">Пользователи</a>
+
+
+		<a data-xf-key="4"
+									 data-xf-click="menu"
+									 data-menu-pos-ref="< .p-navEl"
+									 class="p-navEl-splitTrigger"
+									 role="button"
+									 tabindex="0"
+									 aria-label="Переключатель раскрытия"
+									 aria-expanded="false"
+									 aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/online/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="currentVisitors">Сейчас на форуме</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+				
+			</nav>
+
+			<ul class="js-offCanvasNavSource" style="display:none" aria-hidden="true">
+				
+					<li>
+						
+	<div class="p-navEl " >
+	
+
+		
+	
+	<a href="https://novarp.ru/"
+	class="p-navEl-link "
+	
+	data-xf-key="1"
+	data-nav-id="home">Главная</a>
+
+
+		
+
+		
+	
+	</div>
+
+					</li>
+				
+					<li>
+						
+	<div class="p-navEl is-selected" data-has-children="true">
+	
+
+		
+	
+	<a href="/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="forums">Форум</a>
+
+
+		<a data-xf-key="2"
+									 data-xf-click="menu"
+									 data-menu-pos-ref="< .p-navEl"
+									 class="p-navEl-splitTrigger"
+									 role="button"
+									 tabindex="0"
+									 aria-label="Переключатель раскрытия"
+									 aria-expanded="false"
+									 aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/whats-new/posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="newPosts">Новые сообщения</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/search/?type=post"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="searchForums">Поиск по форуму</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+					</li>
+				
+					<li>
+						
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/whats-new/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="whatsNew">Что нового</a>
+
+
+		<a data-xf-key="3"
+									 data-xf-click="menu"
+									 data-menu-pos-ref="< .p-navEl"
+									 class="p-navEl-splitTrigger"
+									 role="button"
+									 tabindex="0"
+									 aria-label="Переключатель раскрытия"
+									 aria-expanded="false"
+									 aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/featured/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="featured">Рекомендованный контент</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="whatsNewPosts">Новые сообщения</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/latest-activity"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="latestActivity">Недавняя активность</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+					</li>
+				
+					<li>
+						
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/members/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="members">Пользователи</a>
+
+
+		<a data-xf-key="4"
+									 data-xf-click="menu"
+									 data-menu-pos-ref="< .p-navEl"
+									 class="p-navEl-splitTrigger"
+									 role="button"
+									 tabindex="0"
+									 aria-label="Переключатель раскрытия"
+									 aria-expanded="false"
+									 aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/online/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="currentVisitors">Сейчас на форуме</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+					</li>
+				
+			</ul>
+
+			<div class="grand-header__actions">
+				
+					
+	
+	<a href="/grand-id/?_xfRedirect=%2Fforums%2F896%2F" class="grand-action-btn grandIdButton">
+		<span class="grandIdButton-icon">ID</span>
+		<span>NOVA ID</span>
+	</a>
+
+					<a href="/login/" class="grand-action-btn" data-xf-click="overlay">Войти</a>
+					<a href="/register/" class="grand-action-btn">Регистрация</a>
+				
+
+				<div class="grand-theme-wrapper">
+					<a class="grand-action-btn grand-icon-btn grand-theme-trigger"
+					   data-xf-click="menu"
+					   data-xf-init="tooltip"
+					   title="Настройка оформления"
+					   role="button"
+					   tabindex="0"
+					   aria-expanded="false"
+					   aria-haspopup="true">
+
+						<i class="fa--xf far fa-sun  icon-light"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#sun"></use></svg></i>
+						<i class="fa--xf far fa-moon  icon-dark"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#moon"></use></svg></i>
+						<i class="fa--xf far fa-desktop  icon-system"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#desktop"></use></svg></i>
+					</a>
+
+					<div class="menu menu--structural menu--theme-selector"
+						 data-menu="menu"
+						 aria-hidden="true"
+						 data-xf-init="style-variation-menu">
+						<div class="menu-content">
+							<h3 class="menu-header">Выберите оформление</h3>
+
+							
+
+	
+		
+
+	<a href="/misc/style-variation?reset=1&amp;t=1792325840%2Ce015e654525b893634ec72a67a8c2b17"
+		class="menu-linkRow is-selected"
+		rel="nofollow"
+		data-xf-click="style-variation" data-variation="">
+
+		<i class="fa--xf far fa-adjust "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#adjust"></use></svg></i>
+
+		
+			Системный
+		
+	</a>
+
+
+		
+
+	<a href="/misc/style-variation?variation=default&amp;t=1792325840%2Ce015e654525b893634ec72a67a8c2b17"
+		class="menu-linkRow "
+		rel="nofollow"
+		data-xf-click="style-variation" data-variation="default">
+
+		<i class="fa--xf far fa-sun "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#sun"></use></svg></i>
+
+		
+			Светлый
+		
+	</a>
+
+
+		
+
+	<a href="/misc/style-variation?variation=alternate&amp;t=1792325840%2Ce015e654525b893634ec72a67a8c2b17"
+		class="menu-linkRow "
+		rel="nofollow"
+		data-xf-click="style-variation" data-variation="alternate">
+
+		<i class="fa--xf far fa-moon "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#moon"></use></svg></i>
+
+		
+			Тёмный
+		
+	</a>
+
+	
+
+	
+		
+	
+
+						</div>
+					</div>
+				</div>
+
+				<div class="grand-search-wrapper">
+					<a href="/search/" class="grand-action-btn grand-search-btn" data-xf-click="menu"><i class="fa--xf far fa-search "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#search"></use></svg></i><span class="grand-search-btn__label">Поиск</span></a>
+					<div class="menu menu--structural menu--wide" data-menu="menu" aria-hidden="true">
+						<form action="/search/search" method="post" class="menu-content" data-xf-init="quick-search">
+							<div class="menu-row">
+								<input type="text" class="input" name="keywords" placeholder="Поиск..." />
+							</div>
+							<div class="menu-footer">
+								<span class="menu-footer-controls"><button type="submit" class="button button--icon button--icon--search button--primary"><i class="fa--xf far fa-search "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#search"></use></svg></i><span class="button-text">Найти</span></button></span>
+							</div>
+							<input type="hidden" name="_xfToken" value="1792325840,e015e654525b893634ec72a67a8c2b17" />
+						</form>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</header>
+
+
+	
+
+	
+	
+		
+	
+
+
+
+
+	
+		<div class="p-navSticky p-navSticky--primary" data-xf-init="sticky-header">
+			
+		</div>
+		
+		
+
+	<div class="offCanvasMenu offCanvasMenu--nav js-headerOffCanvasMenu" data-menu="menu" aria-hidden="true" data-ocm-builder="navigation">
+		<div class="offCanvasMenu-backdrop" data-menu-close="true"></div>
+		<div class="offCanvasMenu-content">
+			<div class="offCanvasMenu-header">
+				Меню
+				<a class="offCanvasMenu-closer" data-menu-close="true" role="button" tabindex="0" aria-label="Закрыть"></a>
+			</div>
+			
+				<div class="p-offCanvasRegisterLink">
+					<div class="offCanvasMenu-linkHolder">
+						<a href="/login/" class="offCanvasMenu-link" data-xf-click="overlay" data-menu-close="true">
+							Вход
+						</a>
+					</div>
+					<hr class="offCanvasMenu-separator" />
+					
+						<div class="offCanvasMenu-linkHolder">
+							<a href="/register/" class="offCanvasMenu-link" data-xf-click="overlay" data-menu-close="true">
+								Регистрация
+							</a>
+						</div>
+						<hr class="offCanvasMenu-separator" />
+					
+				</div>
+			
+			<div class="js-offCanvasNavTarget"></div>
+			<div class="offCanvasMenu-installBanner js-installPromptContainer" style="display: none;" data-xf-init="install-prompt">
+				<div class="offCanvasMenu-installBanner-header">Установить приложение</div>
+				<button type="button" class="button js-installPromptButton"><span class="button-text">Установить</span></button>
+				<template class="js-installTemplateIOS">
+					<div class="js-installTemplateContent">
+						<div class="overlay-title">Как установить приложение на iOS</div>
+						<div class="block-body">
+							<div class="block-row">
+								<p>
+									Следуйте инструкциям в видео ниже, чтобы узнать, как установить наш сайт как веб-приложение на главный экран вашего устройства.
+								</p>
+								<p style="text-align: center">
+									<video src="/styles/default/xenforo/add_to_home.mp4"
+										   width="280" height="480" autoplay loop muted playsinline></video>
+								</p>
+								<p>
+									<small><strong>Примечание:</strong> Эта функция может быть недоступна в некоторых браузерах.</small>
+								</p>
+							</div>
+						</div>
+					</div>
+				</template>
+			</div>
+		</div>
+	</div>
+
+	<div class="p-body">
+		<div class="p-body-inner">
+			<!--XF:EXTRA_OUTPUT-->
+
+			
+
+			
+
+			
+			
+	
+		<ul class="p-breadcrumbs "
+			itemscope itemtype="https://schema.org/BreadcrumbList">
+			
+				
+
+				
+				
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="https://novarp.ru/" itemprop="item">
+			<span itemprop="name">Главная</span>
+		</a>
+		<meta itemprop="position" content="1" />
+	</li>
+
+				
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/" itemprop="item">
+			<span itemprop="name">Форум</span>
+		</a>
+		<meta itemprop="position" content="2" />
+	</li>
+
+				
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/#pravila-proyekta-nova-rp.1238" itemprop="item">
+			<span itemprop="name">Правила проекта NOVA RP</span>
+		</a>
+		<meta itemprop="position" content="3" />
+	</li>
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/forums/893/" itemprop="item">
+			<span itemprop="name">Правила проекта</span>
+		</a>
+		<meta itemprop="position" content="4" />
+	</li>
+
+				
+			
+		</ul>
+	
+
+			
+
+			
+	<noscript class="js-jsWarning"><div class="blockMessage blockMessage--important blockMessage--iconic u-noJsOnly">JavaScript отключён. Для полноценно использования нашего сайта, пожалуйста, включите JavaScript в своём браузере.</div></noscript>
+
+			
+	<div class="blockMessage blockMessage--important blockMessage--iconic js-browserWarning" style="display: none">Вы используете устаревший браузер. Этот и другие сайты могут отображаться в нём неправильно.<br />Необходимо обновить браузер или попробовать использовать <a href="https://www.google.com/chrome/" target="_blank" rel="noopener">другой</a>.</div>
+
+
+			
+				<div class="p-body-header">
+					
+						
+							<div class="p-title ">
+								
+									
+										<h1 class="p-title-value">Правила для криминальных организаций</h1>
+									
+									
+								
+							</div>
+						
+
+						
+					
+				</div>
+			
+
+			<div class="p-body-main  ">
+				
+				<div class="p-body-contentCol"></div>
+				
+
+				
+
+				<div class="p-body-content">
+					
+					<div class="p-body-pageContent">
+
+
+
+
+
+
+
+	
+	
+	
+
+
+
+
+
+
+	
+
+	
+		
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="block " data-xf-init="" data-type="thread" data-href="/inline-mod/">
+
+	<div class="block-outer"></div>
+
+	<div class="block-container">
+
+		
+			<div class="block-filterBar">
+				<div class="filterBar">
+					
+
+					<a class="filterBar-menuTrigger" data-xf-click="menu" role="button" tabindex="0" aria-expanded="false" aria-haspopup="true">Фильтры</a>
+					<div class="menu menu--wide" data-menu="menu" aria-hidden="true"
+						data-href="/forums/896/filters"
+						data-load-target=".js-filterMenuBody">
+						<div class="menu-content">
+							<h4 class="menu-header">Показать только:</h4>
+							<div class="js-filterMenuBody">
+								<div class="menu-row">Загрузка...</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+
+		
+
+		<div class="block-body">
+			
+				<div class="structItemContainer">
+					
+
+	
+
+	
+
+
+
+					
+						
+							<div class="structItemContainer-group structItemContainer-group--sticky">
+								
+									
+
+	
+
+	<div class="structItem structItem--thread is-prefix4 js-inlineModContainer js-threadListItem-406244" data-author="Jonny Makalister">
+
+	
+		<div class="structItem-cell structItem-cell--icon">
+			<div class="structItem-iconContainer">
+				<a href="/members/115005/" class="avatar avatar--s" data-user-id="115005" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/115/115005.jpg?1614272272" srcset="/data/avatars/m/115/115005.jpg?1614272272 2x" alt="Jonny Makalister" class="avatar-u115005-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--main" data-xf-init="touch-proxy">
+			
+				<ul class="structItem-statuses">
+				
+				
+					
+					
+					
+					
+					
+						<li>
+							<i class="structItem-status structItem-status--locked" aria-hidden="true" title="Закрыто"></i>
+							<span class="u-srOnly">Закрыто</span>
+						</li>
+					
+
+					
+						
+							<li>
+								<i class="structItem-status structItem-status--sticky" aria-hidden="true" title="Закреплено"></i>
+								<span class="u-srOnly">Закреплено</span>
+							</li>
+						
+					
+
+					
+						
+					
+
+					
+					
+
+					
+					
+						
+							
+						
+					
+				
+				
+				</ul>
+			
+
+			<div class="structItem-title">
+				
+				
+					
+						<a href="/forums/896/?prefix_id=4" class="labelLink" rel="nofollow"><span class="label label--red" dir="auto">ВАЖНО</span></a>
+					
+				
+				<a href="/threads/406244/" class="" data-tp-primary="on" data-xf-init="preview-tooltip" data-preview-url="/threads/406244/preview"
+					>
+					Правила криминальных организаций
+				</a>
+			</div>
+
+			<div class="structItem-minor">
+				
+
+				
+					<ul class="structItem-parts">
+						<li><a href="/members/115005/" class="username " dir="auto" data-user-id="115005" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Jonny Makalister</span></a></li>
+						<li class="structItem-startDate"><a href="/threads/406244/" rel="nofollow"><time  class="u-dt" dir="auto" datetime="2025-12-06T03:13:12+0300" data-timestamp="1764979992" data-date="06.12.2025" data-time="03:13" data-short="Дек &#039;25" title="06.12.2025 в 03:13">06.12.2025</time></a></li>
+						
+					</ul>
+
+					
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--meta" title="Количество реакций на первое сообщение: 0">
+			<dl class="pairs pairs--justified">
+				<dt>Ответы</dt>
+				<dd>1</dd>
+			</dl>
+			<dl class="pairs pairs--justified structItem-minor">
+				<dt>Просмотры</dt>
+				<dd>8 тыс.</dd>
+			</dl>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--latest">
+			
+				<a href="/threads/406244/latest" rel="nofollow"><time  class="structItem-latestDate u-dt" dir="auto" datetime="2026-08-25T17:17:39+0300" data-timestamp="1787667459" data-date="25.08.2026" data-time="17:17" data-short="Авг 25" title="25.08.2026 в 17:17">25.08.2026</time></a>
+				<div class="structItem-minor">
+					
+						<a href="/members/115005/" class="username " dir="auto" data-user-id="115005" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Jonny Makalister</span></a>
+					
+				</div>
+			
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--icon structItem-cell--iconEnd">
+			<div class="structItem-iconContainer">
+				
+					<a href="/members/115005/" class="avatar avatar--xxs" data-user-id="115005" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/115/115005.jpg?1614272272"  alt="Jonny Makalister" class="avatar-u115005-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	</div>
+
+								
+									
+
+	
+
+	<div class="structItem structItem--thread is-prefix4 js-inlineModContainer js-threadListItem-402991" data-author="Deiman">
+
+	
+		<div class="structItem-cell structItem-cell--icon">
+			<div class="structItem-iconContainer">
+				<a href="/members/152147/" class="avatar avatar--s" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350" srcset="/data/avatars/m/152/152147.jpg?1777496350 2x" alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--main" data-xf-init="touch-proxy">
+			
+				<ul class="structItem-statuses">
+				
+				
+					
+					
+					
+					
+					
+						<li>
+							<i class="structItem-status structItem-status--locked" aria-hidden="true" title="Закрыто"></i>
+							<span class="u-srOnly">Закрыто</span>
+						</li>
+					
+
+					
+						
+							<li>
+								<i class="structItem-status structItem-status--sticky" aria-hidden="true" title="Закреплено"></i>
+								<span class="u-srOnly">Закреплено</span>
+							</li>
+						
+					
+
+					
+						
+					
+
+					
+					
+
+					
+					
+						
+							
+						
+					
+				
+				
+				</ul>
+			
+
+			<div class="structItem-title">
+				
+				
+					
+						<a href="/forums/896/?prefix_id=4" class="labelLink" rel="nofollow"><span class="label label--red" dir="auto">ВАЖНО</span></a>
+					
+				
+				<a href="/threads/402991/" class="" data-tp-primary="on" data-xf-init="preview-tooltip" data-preview-url="/threads/402991/preview"
+					>
+					Правила войны за территории
+				</a>
+			</div>
+
+			<div class="structItem-minor">
+				
+
+				
+					<ul class="structItem-parts">
+						<li><a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a></li>
+						<li class="structItem-startDate"><a href="/threads/402991/" rel="nofollow"><time  class="u-dt" dir="auto" datetime="2025-09-05T10:59:07+0300" data-timestamp="1757059147" data-date="05.09.2025" data-time="10:59" data-short="Сен &#039;25" title="05.09.2025 в 10:59">05.09.2025</time></a></li>
+						
+					</ul>
+
+					
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--meta" title="Количество реакций на первое сообщение: 0">
+			<dl class="pairs pairs--justified">
+				<dt>Ответы</dt>
+				<dd>0</dd>
+			</dl>
+			<dl class="pairs pairs--justified structItem-minor">
+				<dt>Просмотры</dt>
+				<dd>2 тыс.</dd>
+			</dl>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--latest">
+			
+				<a href="/threads/402991/latest" rel="nofollow"><time  class="structItem-latestDate u-dt" dir="auto" datetime="2025-09-05T10:59:07+0300" data-timestamp="1757059147" data-date="05.09.2025" data-time="10:59" data-short="Сен &#039;25" title="05.09.2025 в 10:59">05.09.2025</time></a>
+				<div class="structItem-minor">
+					
+						<a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a>
+					
+				</div>
+			
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--icon structItem-cell--iconEnd">
+			<div class="structItem-iconContainer">
+				
+					<a href="/members/152147/" class="avatar avatar--xxs" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350"  alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	</div>
+
+								
+									
+
+	
+
+	<div class="structItem structItem--thread is-prefix4 js-inlineModContainer js-threadListItem-402990" data-author="Deiman">
+
+	
+		<div class="structItem-cell structItem-cell--icon">
+			<div class="structItem-iconContainer">
+				<a href="/members/152147/" class="avatar avatar--s" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350" srcset="/data/avatars/m/152/152147.jpg?1777496350 2x" alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--main" data-xf-init="touch-proxy">
+			
+				<ul class="structItem-statuses">
+				
+				
+					
+					
+					
+					
+					
+						<li>
+							<i class="structItem-status structItem-status--locked" aria-hidden="true" title="Закрыто"></i>
+							<span class="u-srOnly">Закрыто</span>
+						</li>
+					
+
+					
+						
+							<li>
+								<i class="structItem-status structItem-status--sticky" aria-hidden="true" title="Закреплено"></i>
+								<span class="u-srOnly">Закреплено</span>
+							</li>
+						
+					
+
+					
+						
+					
+
+					
+					
+
+					
+					
+						
+							
+						
+					
+				
+				
+				</ul>
+			
+
+			<div class="structItem-title">
+				
+				
+					
+						<a href="/forums/896/?prefix_id=4" class="labelLink" rel="nofollow"><span class="label label--red" dir="auto">ВАЖНО</span></a>
+					
+				
+				<a href="/threads/402990/" class="" data-tp-primary="on" data-xf-init="preview-tooltip" data-preview-url="/threads/402990/preview"
+					>
+					Титульные районы и лор у банд
+				</a>
+			</div>
+
+			<div class="structItem-minor">
+				
+
+				
+					<ul class="structItem-parts">
+						<li><a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a></li>
+						<li class="structItem-startDate"><a href="/threads/402990/" rel="nofollow"><time  class="u-dt" dir="auto" datetime="2025-09-05T10:58:26+0300" data-timestamp="1757059106" data-date="05.09.2025" data-time="10:58" data-short="Сен &#039;25" title="05.09.2025 в 10:58">05.09.2025</time></a></li>
+						
+					</ul>
+
+					
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--meta" title="Количество реакций на первое сообщение: 0">
+			<dl class="pairs pairs--justified">
+				<dt>Ответы</dt>
+				<dd>0</dd>
+			</dl>
+			<dl class="pairs pairs--justified structItem-minor">
+				<dt>Просмотры</dt>
+				<dd>1 тыс.</dd>
+			</dl>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--latest">
+			
+				<a href="/threads/402990/latest" rel="nofollow"><time  class="structItem-latestDate u-dt" dir="auto" datetime="2025-09-05T10:58:26+0300" data-timestamp="1757059106" data-date="05.09.2025" data-time="10:58" data-short="Сен &#039;25" title="05.09.2025 в 10:58">05.09.2025</time></a>
+				<div class="structItem-minor">
+					
+						<a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a>
+					
+				</div>
+			
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--icon structItem-cell--iconEnd">
+			<div class="structItem-iconContainer">
+				
+					<a href="/members/152147/" class="avatar avatar--xxs" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350"  alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	</div>
+
+								
+							</div>
+
+							
+						
+
+						<div class="structItemContainer-group js-threadList">
+							
+								
+									
+
+	
+
+	<div class="structItem structItem--thread is-prefix16 js-inlineModContainer js-threadListItem-402994" data-author="Deiman">
+
+	
+		<div class="structItem-cell structItem-cell--icon">
+			<div class="structItem-iconContainer">
+				<a href="/members/152147/" class="avatar avatar--s" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350" srcset="/data/avatars/m/152/152147.jpg?1777496350 2x" alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--main" data-xf-init="touch-proxy">
+			
+				<ul class="structItem-statuses">
+				
+				
+					
+					
+					
+					
+					
+						<li>
+							<i class="structItem-status structItem-status--locked" aria-hidden="true" title="Закрыто"></i>
+							<span class="u-srOnly">Закрыто</span>
+						</li>
+					
+
+					
+						
+					
+
+					
+						
+					
+
+					
+					
+
+					
+					
+						
+							
+						
+					
+				
+				
+				</ul>
+			
+
+			<div class="structItem-title">
+				
+				
+					
+						<a href="/forums/896/?prefix_id=16" class="labelLink" rel="nofollow"><span class="label label--skyBlue" dir="auto">Интересно</span></a>
+					
+				
+				<a href="/threads/402994/" class="" data-tp-primary="on" data-xf-init="preview-tooltip" data-preview-url="/threads/402994/preview"
+					>
+					Система внутрифракционной иерархии
+				</a>
+			</div>
+
+			<div class="structItem-minor">
+				
+
+				
+					<ul class="structItem-parts">
+						<li><a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a></li>
+						<li class="structItem-startDate"><a href="/threads/402994/" rel="nofollow"><time  class="u-dt" dir="auto" datetime="2025-09-05T11:02:13+0300" data-timestamp="1757059333" data-date="05.09.2025" data-time="11:02" data-short="Сен &#039;25" title="05.09.2025 в 11:02">05.09.2025</time></a></li>
+						
+					</ul>
+
+					
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--meta" title="Количество реакций на первое сообщение: 0">
+			<dl class="pairs pairs--justified">
+				<dt>Ответы</dt>
+				<dd>0</dd>
+			</dl>
+			<dl class="pairs pairs--justified structItem-minor">
+				<dt>Просмотры</dt>
+				<dd>612</dd>
+			</dl>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--latest">
+			
+				<a href="/threads/402994/latest" rel="nofollow"><time  class="structItem-latestDate u-dt" dir="auto" datetime="2025-09-05T11:02:13+0300" data-timestamp="1757059333" data-date="05.09.2025" data-time="11:02" data-short="Сен &#039;25" title="05.09.2025 в 11:02">05.09.2025</time></a>
+				<div class="structItem-minor">
+					
+						<a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a>
+					
+				</div>
+			
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--icon structItem-cell--iconEnd">
+			<div class="structItem-iconContainer">
+				
+					<a href="/members/152147/" class="avatar avatar--xxs" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350"  alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	</div>
+
+								
+									
+
+	
+
+	<div class="structItem structItem--thread is-prefix16 js-inlineModContainer js-threadListItem-402993" data-author="Deiman">
+
+	
+		<div class="structItem-cell structItem-cell--icon">
+			<div class="structItem-iconContainer">
+				<a href="/members/152147/" class="avatar avatar--s" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350" srcset="/data/avatars/m/152/152147.jpg?1777496350 2x" alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--main" data-xf-init="touch-proxy">
+			
+				<ul class="structItem-statuses">
+				
+				
+					
+					
+					
+					
+					
+						<li>
+							<i class="structItem-status structItem-status--locked" aria-hidden="true" title="Закрыто"></i>
+							<span class="u-srOnly">Закрыто</span>
+						</li>
+					
+
+					
+						
+					
+
+					
+						
+					
+
+					
+					
+
+					
+					
+						
+							
+						
+					
+				
+				
+				</ul>
+			
+
+			<div class="structItem-title">
+				
+				
+					
+						<a href="/forums/896/?prefix_id=16" class="labelLink" rel="nofollow"><span class="label label--skyBlue" dir="auto">Интересно</span></a>
+					
+				
+				<a href="/threads/402993/" class="" data-tp-primary="on" data-xf-init="preview-tooltip" data-preview-url="/threads/402993/preview"
+					>
+					Система иерархии криминальных структур
+				</a>
+			</div>
+
+			<div class="structItem-minor">
+				
+
+				
+					<ul class="structItem-parts">
+						<li><a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a></li>
+						<li class="structItem-startDate"><a href="/threads/402993/" rel="nofollow"><time  class="u-dt" dir="auto" datetime="2025-09-05T11:01:33+0300" data-timestamp="1757059293" data-date="05.09.2025" data-time="11:01" data-short="Сен &#039;25" title="05.09.2025 в 11:01">05.09.2025</time></a></li>
+						
+					</ul>
+
+					
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--meta" title="Количество реакций на первое сообщение: 0">
+			<dl class="pairs pairs--justified">
+				<dt>Ответы</dt>
+				<dd>0</dd>
+			</dl>
+			<dl class="pairs pairs--justified structItem-minor">
+				<dt>Просмотры</dt>
+				<dd>552</dd>
+			</dl>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--latest">
+			
+				<a href="/threads/402993/latest" rel="nofollow"><time  class="structItem-latestDate u-dt" dir="auto" datetime="2025-09-05T11:01:33+0300" data-timestamp="1757059293" data-date="05.09.2025" data-time="11:01" data-short="Сен &#039;25" title="05.09.2025 в 11:01">05.09.2025</time></a>
+				<div class="structItem-minor">
+					
+						<a href="/members/152147/" class="username " dir="auto" data-user-id="152147" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">Deiman</span></a>
+					
+				</div>
+			
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--icon structItem-cell--iconEnd">
+			<div class="structItem-iconContainer">
+				
+					<a href="/members/152147/" class="avatar avatar--xxs" data-user-id="152147" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/152/152147.jpg?1777496350"  alt="Deiman" class="avatar-u152147-s" width="48" height="48" loading="lazy" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	</div>
+
+								
+								
+							
+						</div>
+					
+				</div>
+			
+		</div>
+	</div>
+
+	<div class="block-outer block-outer--after">
+		
+		
+		
+			<div class="block-outer-opposite">
+				
+					<a href="/login/" class="button button--link button--wrap" data-xf-click="overlay"><span class="button-text">
+						Вам необходимо войти или зарегистрироваться, чтобы размещать здесь сообщения.
+					</span></a>
+				
+			</div>
+		
+	</div>
+</div>
+
+
+
+
+
+
+
+
+</div>
+					
+				</div>
+
+				
+			</div>
+
+			
+			
+	
+		<ul class="p-breadcrumbs p-breadcrumbs--bottom"
+			itemscope itemtype="https://schema.org/BreadcrumbList">
+			
+				
+
+				
+				
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="https://novarp.ru/" itemprop="item">
+			<span itemprop="name">Главная</span>
+		</a>
+		<meta itemprop="position" content="1" />
+	</li>
+
+				
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/" itemprop="item">
+			<span itemprop="name">Форум</span>
+		</a>
+		<meta itemprop="position" content="2" />
+	</li>
+
+				
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/#pravila-proyekta-nova-rp.1238" itemprop="item">
+			<span itemprop="name">Правила проекта NOVA RP</span>
+		</a>
+		<meta itemprop="position" content="3" />
+	</li>
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/forums/893/" itemprop="item">
+			<span itemprop="name">Правила проекта</span>
+		</a>
+		<meta itemprop="position" content="4" />
+	</li>
+
+				
+			
+		</ul>
+	
+
+			
+		</div>
+	</div>
+
+	<footer class="grand-footer" id="footer">
+		<div class="grand-footer__inner">
+
+			<div class="grand-footer__logo">
+				<a href="https://forum.grand-rp.su">
+					
+
+	
+
+	
+		
+		
+
+		
+	
+		
+		
+
+		
+	
+
+	
+
+	<picture data-variations="{&quot;default&quot;:{&quot;1&quot;:&quot;\/data\/assets\/logo_default\/white.svg?v=2&quot;,&quot;2&quot;:null},&quot;alternate&quot;:{&quot;1&quot;:&quot;\/data\/assets\/logo_alternate\/black.svg?v=2&quot;,&quot;2&quot;:null}}">
+		
+		
+		
+
+		
+			
+			
+			
+
+			
+				<source srcset="/data/assets/logo_alternate/black.svg?v=2" media="(prefers-color-scheme: dark)" />
+			
+		
+
+		<img src="/data/assets/logo_default/white.svg?v=2"  width="100" height="36" alt="NOVA RP | Форум"  />
+	</picture>
+
+
+				</a>
+			</div>
+
+			<nav class="grand-footer__nav">
+				<a href="/">Главная</a>
+				
+					<a href="/misc/contact" data-xf-click="overlay">Связь с нами</a>
+				
+				
+					<a href="/help/terms/">Условия и правила</a>
+				
+				
+					<a href="/help/privacy-policy/">Политика конфиденциальности</a>
+				
+				
+					<a href="/help/">Помощь</a>
+				
+			</nav>
+
+		</div>
+
+		
+			<div class="grand-footer__copyright">
+				
+					<a href="https://xenforo.com" class="u-concealed" dir="ltr" target="_blank" rel="sponsored noopener">Community platform by XenForo<sup>&reg;</sup> <span class="copyright">&copy; 2010-2026 XenForo Ltd.</span></a>
+					<a href="https://jumuro.ru" class="u-concealed" dir="ltr" target="_blank" rel="sponsored noopener">Перевод от Jumuro<sup>&reg;</sup></a>
+				
+			</div>
+		
+
+		
+	</footer>
+</div> <!-- closing p-pageWrapper -->
+
+<div class="u-bottomFixer js-bottomFixTarget">
+	
+	
+		
+	
+		
+		
+
+		<ul class="notices notices--bottom_fixer  js-notices"
+			data-xf-init="notices"
+			data-type="bottom_fixer"
+			data-scroll-interval="6">
+
+			
+				
+	<li class="notice js-notice notice--primary notice--cookie"
+		data-notice-id="-1"
+		data-delay-duration="0"
+		data-display-duration="0"
+		data-auto-dismiss="0"
+		data-visibility="">
+
+		
+		<div class="notice-content">
+			
+			
+	<div class="u-alignCenter">
+		На данном сайте используются файлы cookie, чтобы персонализировать контент и сохранить Ваш вход в систему, если Вы зарегистрируетесь.<br />
+Продолжая использовать этот сайт, Вы соглашаетесь на использование наших файлов cookie.
+	</div>
+
+	<div class="u-inputSpacer u-alignCenter">
+		<a href="/account/dismiss-notice" class="button button--icon button--icon--confirm js-noticeDismiss button--notice"><i class="fa--xf far fa-check "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#check"></use></svg></i><span class="button-text">Принять</span></a>
+		<a href="/help/cookies" class="button button--notice"><span class="button-text">Узнать больше....</span></a>
+	</div>
+
+		</div>
+	</li>
+
+			
+		</ul>
+	
+
+	
+</div>
+
+<div class="u-navButtons js-navButtons">
+	<a href="javascript:" class="button button--scroll"><span class="button-text"><i class="fa--xf far fa-arrow-left "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#arrow-left"></use></svg></i><span class="u-srOnly">Назад</span></span></a>
+</div>
+
+
+	<div class="u-scrollButtons js-scrollButtons" data-trigger-type="up">
+		<a href="#top" class="button button--scroll" data-xf-click="scroll-to"><span class="button-text"><i class="fa--xf far fa-arrow-up "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791777872#arrow-up"></use></svg></i><span class="u-srOnly">Верх</span></span></a>
+		
+	</div>
+
+
+
+	<form style="display:none" hidden="hidden">
+		<input type="text" name="_xfClientLoadTime" value="" id="_xfClientLoadTime" title="_xfClientLoadTime" tabindex="-1" />
+	</form>
+
+	
+
+
+
+
+
+
+<script>
+	(function() {
+		var html = document.documentElement;
+
+		// --- 1. Прокрутка шапки ---
+		var header = document.querySelector('.grand-header');
+		if (header) {
+			window.addEventListener('scroll', function() {
+				header.classList.toggle('grand-header--scrolled', window.scrollY > 10);
+			}, { passive: true });
+			if (window.scrollY > 10) header.classList.add('grand-header--scrolled');
+		}
+
+		// --- 2. Синхронизация галочек в меню ---
+		function syncThemeMenu() {
+			var actualVariation = html.getAttribute('data-actual-variation') || '';
+			var menuLinks = document.querySelectorAll('.menu--theme-selector .menu-linkRow[data-variation]');
+
+			menuLinks.forEach(function(link) {
+				if (link.dataset.variation === actualVariation) {
+					link.classList.add('is-selected');
+				} else {
+					link.classList.remove('is-selected');
+				}
+			});
+		}
+
+		// Запускаем расстановку галочек
+		syncThemeMenu();
+
+		// --- 3. Слушаем изменения (если юзер кликнул на новую тему) ---
+		var observer = new MutationObserver(function(mutations) {
+			mutations.forEach(function(m) {
+				if (m.attributeName === 'data-variation') {
+					var newVar = html.getAttribute('data-variation');
+					// Обновляем наш честный маркер
+					html.setAttribute('data-actual-variation', (newVar === 'default' || newVar === 'alternate') ? newVar : '');
+					syncThemeMenu();
+				}
+			});
+		});
+		observer.observe(html, { attributes: true, attributeFilter: ['data-variation'] });
+
+		// --- 4. Слушаем смену темы в Windows/OS на лету ---
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+			if (!html.getAttribute('data-actual-variation')) {
+				html.setAttribute('data-color-scheme', e.matches ? 'dark' : 'light');
+			}
+		});
+	})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
