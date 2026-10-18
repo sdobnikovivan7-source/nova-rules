@@ -27,7 +27,7 @@ export async function seedIfEmpty(db: Db): Promise<boolean> {
   const started = Date.now();
   try {
     const data = await readDataDir(dir);
-    applyData(db, data);
+    applyData(db, { ...data, meta: { ...data.meta!, source: 'seed' } });
     log.info(
       `seed: версия ${data.meta?.version}, тем ${data.docs.length} за ${Date.now() - started} мс`,
     );

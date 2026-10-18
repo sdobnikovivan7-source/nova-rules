@@ -12,16 +12,16 @@ import {
   FONT_SCALE_MIN,
   type InvokeApi,
   invokeChannel,
-  type SyncStatus,
 } from '@shared/ipc';
 import type { Db } from './db';
 import * as repo from './db/repo';
 import { formatRuleForCopy } from './format';
 import { openExternalSafe } from './security';
 import { getSettings, setSettings } from './settings';
+import type { SyncService } from './sync';
 import { getMainWindow, showMainWindow } from './windows/mainWindow';
 
-export type IpcContext = { db: Db; logsDir: string };
+export type IpcContext = { db: Db; logsDir: string; sync: SyncService };
 
 const ruleId = z.string().min(1).max(200);
 
@@ -69,21 +69,7 @@ const ARGS: { [K in keyof InvokeApi]: z.ZodType<Parameters<InvokeApi[K]>> } = {
   getAppInfo: z.tuple([]),
 } as never;
 
-export function syncStatus(db: Db): SyncStatus {
-  // настоящая синхронизация — этап 4; пока статус собирается из meta
-  const status: SyncStatus = {
-    state: 'idle',
-    mode: 'central',
-    dataVersion: repo.getDataVersion(db),
-  };
-  const builtAt = repo.getMeta(db, 'data_built_at');
-  const lastSync = repo.getMeta(db, 'last_sync_at');
-  if (builtAt) status.dataBuiltAt = builtAt;
-  if (lastSync) status.lastSuccessAt = lastSync;
-  return status;
-}
-
-export function registerIpc({ db, logsDir }: IpcContext): void {
+export function registerIpc({ db, logsDir, sync }: IpcContext): void {
   const impl: InvokeApi = {
     getCategories: async () => repo.getCategories(db),
     getDocs: async (categoryId) => repo.getDocs(db, categoryId),
@@ -95,8 +81,8 @@ export function registerIpc({ db, logsDir }: IpcContext): void {
     markChangesSeen: async (ids) => repo.markChangesSeen(db, ids),
     getFavorites: async () => repo.getFavorites(db),
     toggleFavorite: async (id) => repo.toggleFavorite(db, id),
-    syncNow: async () => log.info('syncNow: синхронизация появится на этапе 4'),
-    getSyncStatus: async () => syncStatus(db),
+    syncNow: () => sync.run({ manual: true }),
+    getSyncStatus: async () => sync.status(),
     openExternal: (url) => openExternalSafe(url),
     copyRule: async (id) => {
       const rule = repo.getRule(db, id);
@@ -104,7 +90,13 @@ export function registerIpc({ db, logsDir }: IpcContext): void {
       clipboard.writeText(formatRuleForCopy(rule));
     },
     getSettings: async () => getSettings(),
-    setSettings: async (patch) => setSettings(patch),
+    setSettings: async (patch) => {
+      const before = getSettings();
+      const next = setSettings(patch);
+      // сменили источник данных — сразу проверить им
+      if (next.syncMode !== before.syncMode) void sync.run({ manual: true });
+      return next;
+    },
     openLogsFolder: async () => void (await shell.openPath(logsDir)),
     getAppInfo: async () => {
       const builtAt = repo.getMeta(db, 'data_built_at');

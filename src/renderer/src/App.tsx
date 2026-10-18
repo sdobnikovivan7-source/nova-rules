@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router';
+import { api } from './api';
 import { Sidebar } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
 import { WindowControls } from './components/WindowControls';
@@ -23,6 +24,17 @@ export function App() {
     void useApp.getState().load();
     return subscribeToMain((route) => void navigate(route));
   }, [navigate]);
+
+  // F5 — проверить обновления правил (вместо перезагрузки страницы); остальные клавиши — этап 8.5
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'F5') return;
+      e.preventDefault();
+      void api.syncNow();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
     <div className="app">

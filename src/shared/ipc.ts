@@ -92,10 +92,15 @@ export type Favorite = {
   changed: boolean;
 };
 
+/**
+ * idle — данные актуальны; checking — идёт проверка (в режиме direct — «Загрузка с форума»);
+ * offline — нет сети, показываются сохранённые данные; error — прочая ошибка.
+ */
 export type SyncState = 'idle' | 'checking' | 'offline' | 'error';
 
 export type SyncStatus = {
   state: SyncState;
+  /** Каким способом идёт / шла последняя синхронизация */
   mode: 'central' | 'direct';
   /** Последняя успешная проверка */
   lastSuccessAt?: string;
@@ -103,6 +108,8 @@ export type SyncStatus = {
   /** Когда данные последний раз изменились */
   dataBuiltAt?: string;
   error?: string;
+  /** Данные требуют более новой версии приложения (schemaVersion / minAppVersion) */
+  appOutdated?: boolean;
 };
 
 export type AppInfo = { version: string; dataVersion: number; dataBuiltAt?: string };

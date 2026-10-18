@@ -24,28 +24,57 @@ export function normalizeSynonyms(raw: z.infer<typeof SynonymsSchema>): Record<s
   return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, Array.isArray(v) ? v : [v]]));
 }
 
-/** Разбор файлов данных по манифесту. `files` — путь относительно data/ → содержимое. */
-export function parseData(manifest: Manifest, files: Map<string, string>): DataInput {
+export class SchemaVersionError extends Error {
+  constructor(readonly schemaVersion: number) {
+    super(`schemaVersion ${schemaVersion} не поддерживается (нужна ${SCHEMA_VERSION})`);
+  }
+}
+
+export class IntegrityError extends Error {}
+
+/** id документа из пути `docs/<id>.json` */
+export const docIdOf = (file: string) => Number(file.slice('docs/'.length, -'.json'.length));
+
+/**
+ * Разбор файлов данных по манифесту. `files` — путь относительно data/ → содержимое.
+ *
+ * `partial` — синхронизация: переданы только изменившиеся файлы (плюс всегда
+ * categories.json). Документы, которых нет в `files`, остаются в БД как есть.
+ */
+export function parseData(
+  manifest: Manifest,
+  files: Map<string, string>,
+  opts: { partial?: boolean } = {},
+): DataInput {
   if (manifest.schemaVersion !== SCHEMA_VERSION)
-    throw new Error(
-      `schemaVersion ${manifest.schemaVersion} не поддерживается (нужна ${SCHEMA_VERSION})`,
-    );
+    throw new SchemaVersionError(manifest.schemaVersion);
   const get = (name: string) => {
     const text = files.get(name);
-    if (text === undefined) throw new Error(`нет файла ${name}`);
+    if (text === undefined) throw new IntegrityError(`нет файла ${name}`);
     const expected = manifest.files[name];
-    if (expected && sha1(text) !== expected) throw new Error(`sha1 не совпадает: ${name}`);
+    if (expected && sha1(text) !== expected) throw new IntegrityError(`sha1 не совпадает: ${name}`);
     return JSON.parse(text) as unknown;
   };
+  const has = (name: string) => !opts.partial || files.has(name);
+
   const docNames = Object.keys(manifest.files).filter((f) => f.startsWith('docs/'));
-  const docs = docNames.map((f) => RuleDocSchema.parse(get(f)));
+  const docs = docNames.filter(has).map((f) => RuleDocSchema.parse(get(f)));
   return {
     categories: z.array(CategorySchema).parse(get('categories.json')),
     docs,
-    allDocIds: docs.map((d) => d.id),
-    changes: z.array(ChangeEntrySchema).parse(get('changes.json')),
-    synonyms: normalizeSynonyms(SynonymsSchema.parse(get('synonyms.json'))),
-    meta: { version: manifest.version, builtAt: manifest.builtAt, checkedAt: manifest.checkedAt },
+    allDocIds: docNames.map(docIdOf),
+    ...(has('changes.json')
+      ? { changes: z.array(ChangeEntrySchema).parse(get('changes.json')) }
+      : {}),
+    ...(has('synonyms.json')
+      ? { synonyms: normalizeSynonyms(SynonymsSchema.parse(get('synonyms.json'))) }
+      : {}),
+    meta: {
+      version: manifest.version,
+      builtAt: manifest.builtAt,
+      checkedAt: manifest.checkedAt,
+      files: manifest.files,
+    },
   };
 }
 

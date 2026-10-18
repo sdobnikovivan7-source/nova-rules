@@ -28,12 +28,22 @@ import type { Db } from './index';
 // ---------- meta
 
 export type MetaKey =
+  /** Версия данных central (manifest.version) */
   | 'data_version'
+  /** Когда данные последний раз изменились */
   | 'data_built_at'
+  /** Когда сборщик последний раз проверил форум */
   | 'data_checked_at'
+  /** JSON: путь файла → sha1 применённой версии (для частичной докачки) */
+  | 'data_files'
+  /** Откуда текущие данные: seed | central | direct */
+  | 'data_source'
+  /** Последняя успешная синхронизация (любой режим) */
   | 'last_sync_at'
-  | 'last_sync_status'
-  | 'mode'
+  /** С какого момента central недоступен (для отката на direct через 3 суток) */
+  | 'central_failing_since'
+  /** Последний прогон direct (не чаще раза в сутки) */
+  | 'last_direct_at'
   | 'synonyms';
 
 export function getMeta(db: Db, key: MetaKey): string | undefined {
@@ -66,8 +76,22 @@ export type DataInput = {
   /** Лента изменений целиком; не задана — не трогается */
   changes?: ChangeEntry[];
   synonyms?: Record<string, string[]>;
-  meta?: { version: number; builtAt: string; checkedAt?: string };
+  meta?: {
+    version: number;
+    builtAt: string;
+    checkedAt?: string;
+    /** sha1 файлов этой версии из манифеста */
+    files?: Record<string, string>;
+    source?: DataSource;
+  };
 };
+
+export type DataSource = 'seed' | 'central' | 'direct';
+
+export function getDataFiles(db: Db): Record<string, string> {
+  const raw = getMeta(db, 'data_files');
+  return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+}
 
 /** HTML правил санитизируется повторно — защита от подмены данных на CDN (§12) */
 const clean = (html: string | undefined) => (html ? sanitizeRuleHtml(html) : html);
@@ -172,6 +196,8 @@ export function applyData(db: Db, input: DataInput): void {
       setMeta(db, 'data_version', input.meta.version);
       setMeta(db, 'data_built_at', input.meta.builtAt);
       if (input.meta.checkedAt) setMeta(db, 'data_checked_at', input.meta.checkedAt);
+      if (input.meta.files) setMeta(db, 'data_files', JSON.stringify(input.meta.files));
+      setMeta(db, 'data_source', input.meta.source ?? 'central');
     }
   })();
 }
@@ -341,6 +367,21 @@ export function getSearchCorpus(db: Db): SearchRow[] {
 export function getSynonyms(db: Db): Record<string, string[]> {
   const raw = getMeta(db, 'synonyms');
   return raw ? (JSON.parse(raw) as Record<string, string[]>) : {};
+}
+
+/** Все документы — прошлая версия для direct-режима (diff и защита от поломки) */
+export function getAllDocs(db: Db): Map<number, RuleDoc> {
+  const ids = db.prepare('SELECT id FROM docs').all() as { id: number }[];
+  return new Map(ids.map(({ id }) => [id, getDoc(db, id)!]));
+}
+
+/** Лента изменений в формате данных (без пометки «просмотрено») */
+export function getChangeEntries(db: Db): ChangeEntry[] {
+  return getChanges(db).map((c) => {
+    const { seen, ...entry } = c;
+    void seen;
+    return entry;
+  });
 }
 
 export function getChanges(db: Db, query: ChangesQuery = {}, now = new Date()): ChangeView[] {

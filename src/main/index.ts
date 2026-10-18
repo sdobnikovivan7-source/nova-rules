@@ -5,13 +5,20 @@
  * %APPDATA%/nova-rules по имени пакета.
  */
 import path from 'node:path';
-import { app } from 'electron';
+import { app, BrowserWindow, net } from 'electron';
 import log from 'electron-log/main';
+import { EVENTS } from '@shared/ipc';
+import { SourcesConfigSchema } from '@shared/schema';
+import sourcesJson from '../../config/sources.json';
 import { openDb } from './db';
 import { registerIpc } from './ipc';
 import { installSecurity } from './security';
 import { seedIfEmpty } from './seed';
 import { getSettings } from './settings';
+import { SyncService } from './sync';
+import { scrapeDirect } from './sync/direct';
+import { DATA_BASES } from './sync/endpoints';
+import { scheduleSync } from './sync/schedule';
 import { createMainWindow, showMainWindow } from './windows/mainWindow';
 
 app.setPath('userData', path.join(app.getPath('appData'), 'NovaRules'));
@@ -42,7 +49,26 @@ async function start() {
   const db = openDb(path.join(app.getPath('userData'), 'nova.db'));
   app.on('will-quit', () => db.close());
   await seedIfEmpty(db);
-  registerIpc({ db, logsDir });
+
+  const sources = SourcesConfigSchema.parse(sourcesJson);
+  const broadcast = (channel: string, ...args: unknown[]) =>
+    BrowserWindow.getAllWindows().forEach((w) => w.webContents.send(channel, ...args));
+  const sync = new SyncService({
+    db,
+    // net.fetch — сетевой стек Chromium: системный прокси и сертификаты
+    fetch: (url, init) => net.fetch(url, init),
+    bases: DATA_BASES,
+    appVersion: app.getVersion(),
+    getMode: () => getSettings().syncMode,
+    direct: () => scrapeDirect({ db, sources, log: (m) => log.info(`direct: ${m}`) }),
+    emit: (status) => broadcast(EVENTS.syncStatus, status),
+    // уведомление о новых изменениях — этап 8.4
+    onUpdated: () => broadcast(EVENTS.dataUpdated),
+    log: (level, msg) => log[level](msg),
+  });
+  registerIpc({ db, logsDir, sync });
+  const stopSync = scheduleSync(sync);
+  app.on('will-quit', stopSync);
 
   // --hidden (автозапуск) и «сразу в трей» заработают с треем на этапе 8 — без трея скрытое окно не вернуть
   const canHide = false;
