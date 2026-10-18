@@ -5,8 +5,9 @@
   "description": "Неофициальный справочник правил NOVA RP для Windows",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@10.34.5",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.node.json --noEmit",

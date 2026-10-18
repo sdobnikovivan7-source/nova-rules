@@ -121,7 +121,10 @@ export const ManifestSchema = z.object({
   schemaVersion: z.number().int(),
   /** Увеличивается при каждом изменении данных */
   version: z.number().int().min(0),
+  /** Когда данные последний раз изменились */
   builtAt: z.string(),
+  /** Когда сборщик последний раз успешно проверил форум */
+  checkedAt: z.string(),
   /** Путь относительно data/ → sha1 содержимого */
   files: z.record(z.string(), z.string()),
   warnings: z.array(z.string()).optional(),

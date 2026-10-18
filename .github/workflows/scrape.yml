@@ -1,0 +1,71 @@
+# Ежедневный сбор правил с форума → ветка data → jsDelivr / GitHub Pages.
+#
+# Каждый прогон коммитит в data хотя бы manifest.json (поле checkedAt), поэтому
+# у игроков видно «проверено сегодня», а GitHub не отключает cron за неактивность.
+# Если есть предупреждения (тема не разобралась и заменена прошлой версией),
+# данные всё равно публикуются, а job завершается с ошибкой — владельцу приходит письмо.
+name: scrape
+
+on:
+  schedule:
+    - cron: '7 3 * * *' # 06:07 МСК
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Прошлая версия данных
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: prev
+        continue-on-error: true # при первом запуске ветки ещё нет
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Сбор правил
+        id: scrape
+        run: |
+          set +e
+          pnpm scrape --prev prev/data --out out/data
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Проверка результата
+        run: test -f out/data/manifest.json || { echo "Сборщик не записал данные"; exit 1; }
+
+      - name: Публикация в ветку data
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: data
+          publish_dir: out
+          keep_files: false
+          enable_jekyll: false
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'data: ${{ github.run_id }}'
+
+      - name: Сброс кеша jsDelivr для manifest.json
+        run: curl -fsS "https://purge.jsdelivr.net/gh/${{ github.repository }}@data/data/manifest.json" || true
+
+      - name: Предупреждения сборщика
+        if: steps.scrape.outputs.code != '0'
+        run: |
+          echo "::error::Сборщик завершился с предупреждениями — см. лог шага «Сбор правил»"
+          exit 1
