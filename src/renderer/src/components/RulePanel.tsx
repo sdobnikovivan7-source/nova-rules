@@ -30,16 +30,24 @@ export function RulePanel({ rule, change, onClose, onOpenInDoc, highlight }: Pro
   const favorite = useApp((s) => s.favoriteIds.has(rule.id));
   const toggleFavorite = useApp((s) => s.toggleFavorite);
 
-  // Esc закрывает панель (если фокус не в поле ввода — там Esc очищает поле)
+  // клавиши выбранного пункта (§10.5): Esc — закрыть панель (в поле ввода Esc очищает поле),
+  // Ctrl+D — в избранное / из избранного, Ctrl+Shift+C — скопировать для жалобы
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || e.defaultPrevented) return;
-      if (e.target instanceof HTMLInputElement) return;
-      onClose();
+      if (e.defaultPrevented) return;
+      if (e.key === 'Escape') {
+        if (!(e.target instanceof HTMLInputElement)) onClose();
+      } else if (e.ctrlKey && !e.shiftKey && e.code === 'KeyD') {
+        e.preventDefault();
+        void toggleFavorite(rule.id);
+      } else if (e.ctrlKey && e.shiftKey && e.code === 'KeyC') {
+        e.preventDefault();
+        void copyRule(rule.id);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, rule.id, toggleFavorite]);
 
   return (
     <aside className="panel rule-panel" aria-label="Пункт правил">

@@ -1,0 +1,279 @@
+/* Изменения (макет «Изменения», §7.9) и избранное */
+
+.changes-head {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 20px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.changes-title .doc-meta {
+  margin-top: 6px;
+}
+
+.changes-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.changes-list {
+  padding: 0 14px 16px;
+}
+
+.day-head {
+  padding: 18px 2px 10px;
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
+  font-weight: 600;
+}
+
+/* ── Карточка изменения ──────────────────────────────────── */
+.change-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--r-card);
+  background: var(--bg-card);
+}
+
+.change-card + .change-card {
+  margin-top: var(--gap-card);
+}
+
+.change-card.is-new {
+  background: var(--bg-card-new);
+}
+
+.change-card.focused {
+  border-color: var(--accent);
+}
+
+.change-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.change-doc {
+  min-width: 0;
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.change-num {
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
+  white-space: nowrap;
+}
+
+.change-head .recent {
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+}
+
+.change-open {
+  margin-left: auto;
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+}
+
+.change-note {
+  color: var(--text-secondary);
+  font-size: var(--fs-small);
+}
+
+/* ── Было / стало ────────────────────────────────────────── */
+.diff {
+  display: grid;
+  gap: 8px;
+}
+
+.diff-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.diff-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--r-row);
+  background: var(--bg-inset);
+}
+
+.diff-label {
+  color: var(--text-faint);
+  font-size: var(--fs-tiny);
+}
+
+.diff-text {
+  font-size: var(--fs-small);
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.diff-before .diff-text {
+  color: var(--text-tertiary);
+}
+
+.diff-after .diff-text {
+  color: var(--text-rule);
+}
+
+.diff del,
+.diff ins {
+  padding: 0 2px;
+  border-radius: var(--r-mark);
+  box-decoration-break: clone;
+}
+
+.diff del {
+  background: var(--diff-del-bg);
+  color: var(--diff-del);
+  text-decoration: line-through;
+}
+
+.diff ins {
+  background: var(--diff-ins-bg);
+  color: var(--diff-ins);
+  text-decoration: none;
+}
+
+/* ── Сводка «За 30 дней» ─────────────────────────────────── */
+.summary-panel {
+  flex: 0 0 var(--summary-w);
+  gap: 4px;
+  padding: 20px 14px 14px;
+  overflow-y: auto;
+}
+
+.summary-title {
+  padding: 0 8px 10px;
+  font-size: var(--fs-h2-card);
+  font-weight: 700;
+}
+
+.summary-list,
+.legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: var(--r-chip);
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--fs-body);
+}
+
+.summary-row:hover:not(:disabled) {
+  background: var(--bg-raised);
+  color: var(--text);
+}
+
+.summary-row.active {
+  background: var(--bg-chip-active);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.summary-row:disabled {
+  color: var(--text-faint);
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 8px;
+  color: var(--text-secondary);
+  font-size: var(--fs-meta);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legend-dot.tone-changed {
+  background: var(--p-warn);
+}
+
+.legend-dot.tone-added {
+  background: var(--ok);
+}
+
+.legend-dot.tone-removed {
+  background: var(--p-ban);
+}
+
+.legend-dot.tone-doc {
+  background: var(--info);
+}
+
+.summary-note {
+  margin-top: auto;
+  padding: 12px 14px;
+  border-radius: var(--r-row);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
+  line-height: 1.5;
+}
+
+/* узкое окно: сводка уступает место ленте */
+@media (max-width: 1000px) {
+  .summary-panel {
+    display: none;
+  }
+}
+
+/* ── Избранное ───────────────────────────────────────────── */
+.fav-mark {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-caption);
+}
+
+.fav-snapshot {
+  color: var(--text-tertiary);
+  font-size: var(--fs-rule);
+  line-height: 1.5;
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+.rule-row.removed {
+  cursor: default;
+}
+
+.rule-row.removed:hover {
+  background: none;
+}

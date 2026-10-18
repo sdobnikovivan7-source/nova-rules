@@ -33,6 +33,7 @@ export const DOCS = ['документ', 'документа', 'документ
 /** «в 1 документе», «в 3 документах» */
 export const DOCS_IN = ['документе', 'документах', 'документах'] as const;
 export const CHANGES = ['изменение', 'изменения', 'изменений'] as const;
+export const CHANGES_NEW = ['новое', 'новых', 'новых'] as const;
 
 /** 'Control+Shift+Space' → 'Ctrl+Shift+Space' */
 export const fmtHotkey = (accel: string) =>

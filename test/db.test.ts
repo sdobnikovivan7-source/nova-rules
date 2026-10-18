@@ -130,6 +130,7 @@ describe('db: миграции и запись', () => {
     ];
     repo.applyData(db, { ...full(), changes });
     expect(repo.toggleFavorite(db, '402991:1.2')).toBe(true);
+    expect(repo.getFavoriteIds(db)).toEqual(['402991:1.2']);
     repo.markChangesSeen(db, ['c1']);
     expect(repo.countUnseenChanges(db)).toBe(1);
 
@@ -164,6 +165,7 @@ describe('db: миграции и запись', () => {
     });
     expect(repo.toggleFavorite(db, '402991:1.2')).toBe(false);
     expect(repo.getFavorites(db)).toEqual([]);
+    expect(repo.getFavoriteIds(db)).toEqual([]);
   });
 });
 

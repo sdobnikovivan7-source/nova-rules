@@ -24,7 +24,8 @@
     "test:watch": "vitest",
     "scrape": "tsx --tsconfig tsconfig.node.json scripts/scrape.ts",
     "fixtures": "tsx --tsconfig tsconfig.node.json scripts/fetch-fixtures.ts",
-    "parse-report": "tsx --tsconfig tsconfig.node.json scripts/parse-report.ts"
+    "parse-report": "tsx --tsconfig tsconfig.node.json scripts/parse-report.ts",
+    "demo-db": "tsx --tsconfig tsconfig.node.json scripts/demo-db.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -59,6 +60,7 @@
     "@tanstack/react-virtual": "^3.14.21",
     "better-sqlite3": "^13.0.3",
     "cheerio": "^1.2.0",
+    "diff": "^9.0.0",
     "domhandler": "^5.0.3",
     "electron-log": "^5.4.4",
     "electron-store": "^12.0.0",

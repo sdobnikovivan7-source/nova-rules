@@ -23,7 +23,9 @@ import { DATA_BASES } from './sync/endpoints';
 import { scheduleSync } from './sync/schedule';
 import { createMainWindow, showMainWindow } from './windows/mainWindow';
 
-app.setPath('userData', path.join(app.getPath('appData'), 'NovaRules'));
+// в dev можно запустить на отдельной папке данных (демо-база, проверка без своих данных)
+const devUserData = !app.isPackaged ? process.env['NOVA_USER_DATA'] : undefined;
+app.setPath('userData', devUserData ?? path.join(app.getPath('appData'), 'NovaRules'));
 app.setAppUserModelId('com.novarules.app');
 registerImageScheme();
 

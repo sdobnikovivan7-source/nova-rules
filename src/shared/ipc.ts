@@ -7,6 +7,9 @@ import type { ChangeEntry, PunishKind, Rule, RuleDoc } from './schema';
 /** Репозиторий проекта: Issues, Releases */
 export const REPO_URL = 'https://github.com/sdobnikovivan7-source/nova-rules';
 
+/** Тема на форуме по id — для документов, которых уже нет в данных */
+export const threadUrl = (docId: number) => `https://forum.grand-rp.su/threads/${docId}/`;
+
 export type Theme = 'dark' | 'light' | 'system';
 export type SyncMode = 'auto' | 'direct';
 

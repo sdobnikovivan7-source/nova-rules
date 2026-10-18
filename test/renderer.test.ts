@@ -71,3 +71,14 @@ describe('isAllowedImage', () => {
     ['не адрес', false],
   ])('%s → %s', (url, ok) => expect(isAllowedImage(url)).toBe(ok));
 });
+
+describe('пословный diff по-русски', () => {
+  it('слова не режутся по буквам', async () => {
+    const { diffWords } = await import('diff');
+    const parts = diffWords('Понедельник/Суббота. | WARN', 'Понедельник/Воскресенье. | WARN', {
+      intlSegmenter: new Intl.Segmenter('ru', { granularity: 'word' }),
+    });
+    expect(parts.filter((p) => p.removed).map((p) => p.value)).toEqual(['Суббота']);
+    expect(parts.filter((p) => p.added).map((p) => p.value)).toEqual(['Воскресенье']);
+  });
+});
