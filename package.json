@@ -14,8 +14,9 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "scrape": "tsx scripts/scrape.ts",
-    "fixtures": "tsx scripts/fetch-fixtures.ts"
+    "scrape": "tsx --tsconfig tsconfig.node.json scripts/scrape.ts",
+    "fixtures": "tsx --tsconfig tsconfig.node.json scripts/fetch-fixtures.ts",
+    "parse-report": "tsx --tsconfig tsconfig.node.json scripts/parse-report.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -39,6 +40,7 @@
   },
   "dependencies": {
     "cheerio": "^1.2.0",
+    "domhandler": "^5.0.3",
     "fast-xml-parser": "^5.11.2",
     "p-retry": "^8.0.1",
     "sanitize-html": "^2.18.1",
