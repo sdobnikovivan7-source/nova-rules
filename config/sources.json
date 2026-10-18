@@ -1,6 +1,6 @@
 {
   "baseUrl": "https://forum.grand-rp.su",
-  "userAgent": "NovaRulesBot/1.0 (+https://github.com/<user>/nova-rules)",
+  "userAgent": "NovaRulesBot/1.0 (+https://github.com/sdobnikovivan7-source/nova-rules)",
   "categories": [
     { "id": "general", "title": "Общие", "fullTitle": "Общие правила", "icon": "FileText", "order": 1, "forumId": 1242 },
     { "id": "events", "title": "Мероприятия", "fullTitle": "Правила мероприятий", "icon": "Flag", "order": 2, "forumId": 1243 },
