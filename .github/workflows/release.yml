@@ -48,9 +48,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm typecheck
-      - run: pnpm test
-
       - name: Seed
         shell: bash
         run: |
@@ -61,6 +58,9 @@ jobs:
             pnpm scrape --offline --out .cache/data
             pnpm seed --from .cache/data
           fi
+
+      - run: pnpm typecheck
+      - run: pnpm test
 
       - name: Сборка и публикация
         run: pnpm build && pnpm exec electron-builder --win --publish always

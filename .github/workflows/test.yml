@@ -17,6 +17,9 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # seed не хранится в git; тест поиска работает на нём
+      - name: Seed из фикстур
+        run: pnpm scrape --offline --out .cache/data && pnpm seed --from .cache/data
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
