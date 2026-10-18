@@ -85,6 +85,11 @@ export function subscribeToMain(navigate: (route: string) => void): () => void {
     api.onSyncStatus((sync) => useApp.setState({ sync })),
     api.onDataUpdated(() => void useApp.getState().reloadData()),
     api.onUserStateChanged(() => void useApp.getState().reloadUserState()),
+    api.onSettingsChanged((settings) => {
+      useApp.setState({ settings });
+      // сменилась горячая клавиша — обновить «занято / свободно»
+      void api.getAppInfo().then((info) => useApp.setState({ info }));
+    }),
     api.onNavigate(navigate),
   ];
   return () => offs.forEach((off) => off());

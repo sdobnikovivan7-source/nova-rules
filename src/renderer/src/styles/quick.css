@@ -1,0 +1,230 @@
+/* Окно быстрого поиска (§7.11, макет «Быстрый поиск») */
+
+body {
+  background: var(--bg-panel);
+}
+
+.quick {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--border-kbd);
+  border-top: 2px solid var(--accent);
+  background: var(--bg-panel);
+}
+
+.quick-bar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 14px;
+  height: 58px;
+  padding: 0 14px 0 20px;
+  border-bottom: 1px solid var(--divider);
+  /* окно можно подвинуть за строку поиска */
+  -webkit-app-region: drag;
+}
+
+.quick-icon {
+  flex-shrink: 0;
+  color: var(--accent-text);
+}
+
+.quick-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: var(--fs-quick-input);
+  font-weight: 500;
+  -webkit-app-region: no-drag;
+}
+
+.quick-input::placeholder {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.quick-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.quick-input:focus-visible {
+  outline: none;
+}
+
+.quick-pin {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: var(--r-chip);
+  background: none;
+  color: var(--text-muted);
+  -webkit-app-region: no-drag;
+}
+
+.quick-pin:hover {
+  background: var(--bg-raised);
+  color: var(--text);
+}
+
+.quick-pin.on {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.quick-esc {
+  padding: 0;
+  border: 0;
+  background: none;
+  -webkit-app-region: no-drag;
+}
+
+.quick-explain {
+  flex-shrink: 0;
+  padding: 10px 18px 4px;
+  color: var(--text-muted);
+  font-size: var(--fs-label);
+  line-height: 1.5;
+}
+
+.quick-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 6px 8px 8px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.quick-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: var(--r-row);
+  cursor: pointer;
+}
+
+.quick-row:hover {
+  background: var(--bg-raised);
+}
+
+.quick-row.selected {
+  background: var(--bg-selected);
+}
+
+.quick-num {
+  flex-shrink: 0;
+  min-width: 34px;
+  padding-top: 1px;
+  color: var(--text-number);
+  font-size: calc(13px * var(--font-scale));
+  font-weight: 600;
+}
+
+.quick-row.selected .quick-num {
+  color: var(--accent-text);
+}
+
+.quick-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* в одну строку; раскрытый — целиком */
+.quick-text {
+  overflow: hidden;
+  color: var(--text-rule);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-row.open .quick-text {
+  white-space: normal;
+  user-select: text;
+}
+
+.quick-notes {
+  color: var(--text-secondary);
+  font-size: var(--fs-meta);
+  line-height: 1.5;
+}
+
+.quick-path {
+  overflow: hidden;
+  color: var(--text-faint);
+  font-size: var(--fs-tiny);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quick-row .punish-badge {
+  max-width: 190px;
+}
+
+.quick-empty,
+.quick-start {
+  padding: 18px 20px;
+  color: var(--text-muted);
+  font-size: var(--fs-meta);
+  list-style: none;
+}
+
+.quick-start {
+  flex: 1;
+}
+
+.quick-start-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-faint);
+  font-size: var(--fs-label);
+}
+
+.quick-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-chip);
+}
+
+.quick-foot {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 16px;
+  height: 38px;
+  padding: 0 14px;
+  overflow: hidden;
+  border-top: 1px solid var(--divider);
+  background: var(--bg-footer-quick);
+  color: var(--text-muted);
+  font-size: var(--fs-label);
+  white-space: nowrap;
+}
+
+.quick-foot .kbd {
+  margin-right: 4px;
+  border: 0;
+  background: var(--border);
+  color: var(--text-secondary);
+  font-size: calc(10.5px * var(--font-scale));
+}
+
+.quick-foot-right {
+  margin-left: auto;
+}
+
+.quick ~ .toast {
+  bottom: 52px;
+}

@@ -1,9 +1,9 @@
-import { Check } from 'lucide-react';
 import { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { api } from './api';
 import { Sidebar } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
+import { Toast } from './components/Toast';
 import { TopBar } from './components/TopBar';
 import { useFontScale } from './fontScale';
 import { Category } from './screens/Category';
@@ -30,16 +30,27 @@ export function App() {
     return subscribeToMain((route) => void navigate(route));
   }, [navigate]);
 
-  // F5 — проверить обновления правил (вместо перезагрузки страницы); остальные клавиши — этап 8.5
+  // клавиши главного окна (§10.5): F5 — проверить обновления (вместо перезагрузки страницы),
+  // Ctrl+1…6 — категории. Ctrl+F и «/» — в TopBar, Ctrl+D и Ctrl+Shift+C — в панели пункта,
+  // Ctrl +/− — fontScale.ts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'F5') return;
-      e.preventDefault();
-      void api.syncNow();
+      if (e.key === 'F5') {
+        e.preventDefault();
+        void api.syncNow();
+        return;
+      }
+      const digit = /^Digit([1-9])$/.exec(e.code);
+      if (e.ctrlKey && !e.shiftKey && !e.altKey && digit) {
+        const cat = useApp.getState().categories[Number(digit[1]) - 1];
+        if (!cat) return;
+        e.preventDefault();
+        void navigate(`/category/${cat.id}`);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="app">
@@ -64,17 +75,6 @@ export function App() {
       </div>
       <StatusBar />
       <Toast />
-    </div>
-  );
-}
-
-function Toast() {
-  const toast = useApp((s) => s.toast);
-  if (!toast) return null;
-  return (
-    <div key={toast.id} className="toast" role="status">
-      <Check size={16} strokeWidth={2.4} aria-hidden />
-      {toast.text}
     </div>
   );
 }

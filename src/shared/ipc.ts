@@ -122,7 +122,13 @@ export type SyncStatus = {
   appOutdated?: boolean;
 };
 
-export type AppInfo = { version: string; dataVersion: number; dataBuiltAt?: string };
+export type AppInfo = {
+  version: string;
+  dataVersion: number;
+  dataBuiltAt?: string;
+  /** Глобальная горячая клавиша зарегистрирована (не занята другой программой) */
+  hotkeyRegistered: boolean;
+};
 
 /** Что выбрали в контекстном меню пункта (выполняет renderer — с тостом и обновлением) */
 export type RuleMenuAction = 'copy' | 'favorite' | 'forum' | 'report';
@@ -202,12 +208,17 @@ export const EVENTS = {
   userStateChanged: 'event:userStateChanged',
   /** Перейти по hash-маршруту (из трея, быстрого поиска, уведомления) */
   navigate: 'event:navigate',
+  /** Настройки изменились (в любом окне) — новое значение */
+  settingsChanged: 'event:settingsChanged',
+  /** Окно быстрого поиска показано — фокус в поле */
+  quickShown: 'event:quickShown',
 } as const;
 
 /** Команды renderer → main без ответа */
 export const COMMANDS = {
   windowMinimize: 'cmd:windowMinimize',
   windowClose: 'cmd:windowClose',
+  quickShow: 'cmd:quickShow',
   quickHide: 'cmd:quickHide',
   quickOpenInMain: 'cmd:quickOpenInMain',
 } as const;
@@ -217,6 +228,8 @@ export interface Api extends InvokeApi {
   onDataUpdated(cb: () => void): () => void;
   onUserStateChanged(cb: () => void): () => void;
   onNavigate(cb: (route: string) => void): () => void;
+  onSettingsChanged(cb: (s: Settings) => void): () => void;
+  onQuickShown(cb: () => void): () => void;
   window: { minimize(): void; close(): void };
-  quick: { hide(): void; openInMain(route: string): void };
+  quick: { show(): void; hide(): void; openInMain(route: string): void };
 }

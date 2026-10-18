@@ -10,18 +10,34 @@ import log from 'electron-log/main';
 import { EVENTS } from '@shared/ipc';
 import { SourcesConfigSchema } from '@shared/schema';
 import sourcesJson from '../../config/sources.json';
+import { applyAutostart, HIDDEN_ARG, syncAutostart } from './autostart';
 import { openDb } from './db';
+import * as repo from './db/repo';
+import {
+  changeQuickHotkey,
+  hotkeyRegistered,
+  registerQuickHotkey,
+  unregisterHotkeys,
+} from './hotkeys';
 import { installImageProtocol, registerImageScheme } from './images';
 import { registerIpc } from './ipc';
+import { notifyChanges } from './notifications';
 import { installSecurity } from './security';
 import { seedIfEmpty } from './seed';
 import { getSettings } from './settings';
 import { applyTheme, watchTheme } from './theme';
+import { AppTray } from './tray';
 import { SyncService } from './sync';
 import { scrapeDirect } from './sync/direct';
 import { DATA_BASES } from './sync/endpoints';
 import { scheduleSync } from './sync/schedule';
-import { createMainWindow, showMainWindow } from './windows/mainWindow';
+import {
+  createMainWindow,
+  getMainWindow,
+  showMainWindow,
+  toggleMainWindow,
+} from './windows/mainWindow';
+import { createQuickWindow, showQuick, toggleQuick } from './windows/quickWindow';
 
 // в dev можно запустить на отдельной папке данных (демо-база, проверка без своих данных)
 const devUserData = !app.isPackaged ? process.env['NOVA_USER_DATA'] : undefined;
@@ -63,6 +79,29 @@ async function start() {
   const sources = SourcesConfigSchema.parse(sourcesJson);
   const broadcast = (channel: string, ...args: unknown[]) =>
     BrowserWindow.getAllWindows().forEach((w) => w.webContents.send(channel, ...args));
+
+  /** Показать главное окно на нужном экране (трей, уведомление, быстрый поиск) */
+  const openRoute = (route: string) => {
+    showMainWindow();
+    getMainWindow()?.webContents.send(EVENTS.navigate, route);
+  };
+
+  const tray = new AppTray({
+    toggleMain: toggleMainWindow,
+    openMain: showMainWindow,
+    openQuick: showQuick,
+    openChanges: () => openRoute('/changes'),
+    syncNow: () => void sync.run({ manual: true }),
+    quit: () => app.quit(),
+  });
+  app.on('will-quit', () => tray.destroy());
+  const updateTray = () =>
+    tray.update({
+      unseen: repo.countUnseenChanges(db),
+      dataBuiltAt: repo.getMeta(db, 'data_built_at'),
+      quickHotkey: getSettings().hotkey,
+    });
+
   const sync = new SyncService({
     db,
     // net.fetch — сетевой стек Chromium: системный прокси и сертификаты
@@ -72,19 +111,45 @@ async function start() {
     getMode: () => getSettings().syncMode,
     direct: () => scrapeDirect({ db, sources, log: (m) => log.info(`direct: ${m}`) }),
     emit: (status) => broadcast(EVENTS.syncStatus, status),
-    // уведомление о новых изменениях — этап 8.4
-    onUpdated: () => broadcast(EVENTS.dataUpdated),
+    onUpdated: ({ newChanges }) => {
+      broadcast(EVENTS.dataUpdated);
+      updateTray();
+      if (getSettings().notifyChanges) notifyChanges(newChanges, () => openRoute('/changes'));
+    },
     log: (level, msg) => log[level](msg),
   });
-  registerIpc({ db, logsDir, sync });
+
+  const settings = getSettings();
+  registerQuickHotkey(settings.hotkey, toggleQuick);
+  app.on('will-quit', unregisterHotkeys);
+  syncAutostart(settings.autostart);
+
+  registerIpc({
+    db,
+    logsDir,
+    sync,
+    changeHotkey: (accel) => changeQuickHotkey(accel, toggleQuick),
+    hotkeyRegistered,
+    onSettingsChanged: (next, before) => {
+      if (next.theme !== before.theme) applyTheme(next.theme);
+      // сменили источник данных — сразу проверить им
+      if (next.syncMode !== before.syncMode) void sync.run({ manual: true });
+      if (next.autostart !== before.autostart) applyAutostart(next.autostart);
+      if (next.hotkey !== before.hotkey) updateTray();
+    },
+    onUserStateChanged: updateTray,
+  });
+  updateTray();
   const stopSync = scheduleSync(sync);
   app.on('will-quit', stopSync);
 
-  // --hidden (автозапуск) и «сразу в трей» заработают с треем на этапе 8 — без трея скрытое окно не вернуть
-  const canHide = false;
-  const hidden = canHide && (process.argv.includes('--hidden') || getSettings().startMinimized);
+  // автозапуск (--hidden) и «Сразу сворачивать в трей» — окно создаётся, но не показывается
+  const hidden = process.argv.includes(HIDDEN_ARG) || settings.startMinimized;
+  log.info(hidden ? 'старт свёрнутым в трей' : 'старт с окном');
   createMainWindow({ show: !hidden });
+  // быстрый поиск создаётся заранее — по горячей клавише открывается мгновенно
+  createQuickWindow();
 
-  // трея пока нет — закрытие окна завершает приложение
+  // окна закрыты (крестик без трея) — выход; иначе приложение живёт в трее
   app.on('window-all-closed', () => app.quit());
 }

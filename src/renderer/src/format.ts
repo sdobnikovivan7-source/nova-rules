@@ -15,24 +15,9 @@ export const fmtDate = (iso?: string) =>
 export const fmtDay = (iso: string) =>
   new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-/** plural(5, ['пункт', 'пункта', 'пунктов']) → «пунктов» */
-export function plural(n: number, [one, few, many]: readonly [string, string, string]): string {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return one;
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
-  return many;
-}
-
-/** «48 пунктов» */
-export const count = (n: number, forms: readonly [string, string, string]) =>
-  `${n} ${plural(n, forms)}`;
-
-export const RULES = ['пункт', 'пункта', 'пунктов'] as const;
-export const DOCS = ['документ', 'документа', 'документов'] as const;
+export { CHANGES, count, DOCS, plural, RULES } from '@shared/plural';
 /** «в 1 документе», «в 3 документах» */
 export const DOCS_IN = ['документе', 'документах', 'документах'] as const;
-export const CHANGES = ['изменение', 'изменения', 'изменений'] as const;
 export const CHANGES_NEW = ['новое', 'новых', 'новых'] as const;
 
 /** 'Control+Shift+Space' → 'Ctrl+Shift+Space' */

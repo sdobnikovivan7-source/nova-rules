@@ -31,11 +31,14 @@ const api: Api = {
   onDataUpdated: (cb) => on(EVENTS.dataUpdated, cb),
   onUserStateChanged: (cb) => on(EVENTS.userStateChanged, cb),
   onNavigate: (cb) => on(EVENTS.navigate, cb),
+  onSettingsChanged: (cb) => on(EVENTS.settingsChanged, cb),
+  onQuickShown: (cb) => on(EVENTS.quickShown, cb),
   window: {
     minimize: () => ipcRenderer.send(COMMANDS.windowMinimize),
     close: () => ipcRenderer.send(COMMANDS.windowClose),
   },
   quick: {
+    show: () => ipcRenderer.send(COMMANDS.quickShow),
     hide: () => ipcRenderer.send(COMMANDS.quickHide),
     openInMain: (route) => ipcRenderer.send(COMMANDS.quickOpenInMain, route),
   },

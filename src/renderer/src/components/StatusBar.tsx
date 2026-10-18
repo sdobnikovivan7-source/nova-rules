@@ -60,7 +60,21 @@ export function StatusBar() {
         Проверить
       </button>
       <span className="status-right">
-        {hotkey && <span>Быстрый поиск — {fmtHotkey(hotkey)}</span>}
+        {hotkey && (
+          <button
+            type="button"
+            className={`status-link${info?.hotkeyRegistered === false ? ' warn' : ''}`}
+            title={
+              info?.hotkeyRegistered === false
+                ? 'Сочетание занято другой программой — выберите другое в настройках'
+                : 'Открыть окно быстрого поиска'
+            }
+            onClick={() => api.quick.show()}
+          >
+            Быстрый поиск — {fmtHotkey(hotkey)}
+            {info?.hotkeyRegistered === false && ' (занято)'}
+          </button>
+        )}
         <span className="mono status-version">v{info?.version}</span>
       </span>
     </footer>

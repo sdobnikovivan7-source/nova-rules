@@ -11,6 +11,7 @@ import {
   FONT_SCALE_MAX,
   FONT_SCALE_MIN,
   type InvokeApi,
+  type Settings,
   invokeChannel,
 } from '@shared/ipc';
 import type { Db } from './db';
@@ -19,11 +20,22 @@ import { formatRuleForCopy } from './format';
 import { showRuleMenu } from './menus';
 import { openExternalSafe } from './security';
 import { getSettings, setSettings } from './settings';
-import { applyTheme } from './theme';
 import type { SyncService } from './sync';
 import { getMainWindow, showMainWindow } from './windows/mainWindow';
+import { hideQuick, showQuick } from './windows/quickWindow';
 
-export type IpcContext = { db: Db; logsDir: string; sync: SyncService };
+export type IpcContext = {
+  db: Db;
+  logsDir: string;
+  sync: SyncService;
+  /** Сменить глобальную горячую клавишу; false — сочетание занято или недопустимо */
+  changeHotkey(accel: string): boolean;
+  hotkeyRegistered(): boolean;
+  /** Применить изменённые настройки (тема, автозапуск, пин, источник данных…) */
+  onSettingsChanged(next: Settings, before: Settings): void;
+  /** Избранное или «просмотрено» изменились — бейджи, трей */
+  onUserStateChanged(): void;
+};
 
 const ruleId = z.string().min(1).max(200);
 
@@ -73,9 +85,14 @@ const ARGS: { [K in keyof InvokeApi]: z.ZodType<Parameters<InvokeApi[K]>> } = {
   getAppInfo: z.tuple([]),
 } as never;
 
-export function registerIpc({ db, logsDir, sync }: IpcContext): void {
-  const userStateChanged = () =>
-    BrowserWindow.getAllWindows().forEach((w) => w.webContents.send(EVENTS.userStateChanged));
+export function registerIpc(ctx: IpcContext): void {
+  const { db, logsDir, sync } = ctx;
+  const broadcast = (channel: string, ...args: unknown[]) =>
+    BrowserWindow.getAllWindows().forEach((w) => w.webContents.send(channel, ...args));
+  const userStateChanged = () => {
+    broadcast(EVENTS.userStateChanged);
+    ctx.onUserStateChanged();
+  };
 
   const impl: InvokeApi = {
     getCategories: async () => repo.getCategories(db),
@@ -116,10 +133,13 @@ export function registerIpc({ db, logsDir, sync }: IpcContext): void {
     getSettings: async () => getSettings(),
     setSettings: async (patch) => {
       const before = getSettings();
+      // горячую клавишу сначала регистрируем: занята — настройка не меняется
+      if (patch.hotkey && patch.hotkey !== before.hotkey && !ctx.changeHotkey(patch.hotkey)) {
+        throw new Error('Сочетание занято другой программой или недопустимо');
+      }
       const next = setSettings(patch);
-      // сменили источник данных — сразу проверить им
-      if (next.syncMode !== before.syncMode) void sync.run({ manual: true });
-      if (next.theme !== before.theme) applyTheme(next.theme);
+      ctx.onSettingsChanged(next, before);
+      broadcast(EVENTS.settingsChanged, next);
       return next;
     },
     openLogsFolder: async () => void (await shell.openPath(logsDir)),
@@ -129,6 +149,7 @@ export function registerIpc({ db, logsDir, sync }: IpcContext): void {
         version: app.getVersion(),
         dataVersion: repo.getDataVersion(db),
         ...(builtAt ? { dataBuiltAt: builtAt } : {}),
+        hotkeyRegistered: ctx.hotkeyRegistered(),
       };
     },
   };
@@ -152,10 +173,12 @@ export function registerIpc({ db, logsDir, sync }: IpcContext): void {
   ipcMain.on(COMMANDS.windowMinimize, (e) => BrowserWindow.fromWebContents(e.sender)?.minimize());
   ipcMain.on(COMMANDS.windowClose, (e) => BrowserWindow.fromWebContents(e.sender)?.close());
 
-  // окно быстрого поиска — этап 8; пока «открыть в главном окне» просто переходит по маршруту
-  ipcMain.on(COMMANDS.quickHide, (e) => BrowserWindow.fromWebContents(e.sender)?.hide());
+  // окно быстрого поиска
+  ipcMain.on(COMMANDS.quickShow, () => showQuick());
+  ipcMain.on(COMMANDS.quickHide, () => hideQuick());
   ipcMain.on(COMMANDS.quickOpenInMain, (_e, route: unknown) => {
     if (typeof route !== 'string' || !route.startsWith('/') || route.length > 300) return;
+    hideQuick();
     showMainWindow();
     getMainWindow()?.webContents.send(EVENTS.navigate, route);
   });

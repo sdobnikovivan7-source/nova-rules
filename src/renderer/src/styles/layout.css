@@ -372,6 +372,21 @@
   text-overflow: ellipsis;
 }
 
+.status-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+.status-link:hover {
+  color: var(--text);
+}
+
+.status-link.warn {
+  color: var(--accent-text);
+}
+
 .status-version {
   font-size: var(--fs-tiny);
 }
