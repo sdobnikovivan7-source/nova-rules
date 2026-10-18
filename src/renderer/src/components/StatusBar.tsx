@@ -2,7 +2,7 @@
  * Строка состояния (§7.10 дизайна): точка статуса + «Правила от …» → состояние →
  * «Проверить» → (справа) подсказка горячей клавиши → версия.
  */
-import { RefreshCw } from 'lucide-react';
+import { CircleArrowUp, RefreshCw } from 'lucide-react';
 import type { SyncStatus } from '@shared/ipc';
 import { api } from '../api';
 import { fmtDate, fmtHotkey } from '../format';
@@ -32,6 +32,7 @@ export function StatusBar() {
   const sync = useApp((s) => s.sync);
   const info = useApp((s) => s.info);
   const hotkey = useApp((s) => s.settings?.hotkey);
+  const update = useApp((s) => s.update);
   if (!sync) return <footer className="statusbar" />;
 
   const date = fmtDate(sync.dataBuiltAt);
@@ -60,6 +61,17 @@ export function StatusBar() {
         Проверить
       </button>
       <span className="status-right">
+        {update.state === 'ready' && (
+          <button
+            type="button"
+            className="status-update"
+            title="Перезапустить приложение и установить новую версию"
+            onClick={() => void api.installUpdate()}
+          >
+            <CircleArrowUp size={13} />
+            Доступна версия {update.version} — перезапустить
+          </button>
+        )}
         {hotkey && (
           <button
             type="button"

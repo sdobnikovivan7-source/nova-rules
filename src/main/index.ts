@@ -7,6 +7,7 @@
 import path from 'node:path';
 import { app, BrowserWindow, Menu, net } from 'electron';
 import log from 'electron-log/main';
+import updaterPkg from 'electron-updater';
 import { EVENTS } from '@shared/ipc';
 import { SourcesConfigSchema } from '@shared/schema';
 import sourcesJson from '../../config/sources.json';
@@ -32,6 +33,7 @@ import { SyncService } from './sync';
 import { scrapeDirect } from './sync/direct';
 import { DATA_BASES } from './sync/endpoints';
 import { scheduleSync } from './sync/schedule';
+import { UpdateService } from './updater';
 import {
   createMainWindow,
   getMainWindow,
@@ -103,6 +105,13 @@ async function start() {
       quickHotkey: getSettings().hotkey,
     });
 
+  const updates = new UpdateService({
+    updater: updaterPkg.autoUpdater,
+    emit: (status) => broadcast(EVENTS.updateStatus, status),
+    log: (level, msg) => log[level](msg),
+  });
+  updaterPkg.autoUpdater.logger = log;
+
   const sync = new SyncService({
     db,
     // net.fetch — сетевой стек Chromium: системный прокси и сертификаты
@@ -111,7 +120,11 @@ async function start() {
     appVersion: app.getVersion(),
     getMode: () => getSettings().syncMode,
     direct: () => scrapeDirect({ db, sources, log: (m) => log.info(`direct: ${m}`) }),
-    emit: (status) => broadcast(EVENTS.syncStatus, status),
+    emit: (status) => {
+      broadcast(EVENTS.syncStatus, status);
+      // данные требуют версию новее — сразу искать обновление приложения
+      if (status.appOutdated && app.isPackaged) void updates.check();
+    },
     onUpdated: ({ newChanges }) => {
       broadcast(EVENTS.dataUpdated);
       updateTray();
@@ -129,6 +142,7 @@ async function start() {
     db,
     logsDir,
     sync,
+    updates,
     changeHotkey: (accel) => changeQuickHotkey(accel, toggleQuick),
     hotkeyRegistered,
     pauseHotkey: setHotkeyPaused,
@@ -144,6 +158,7 @@ async function start() {
   updateTray();
   const stopSync = scheduleSync(sync);
   app.on('will-quit', stopSync);
+  if (app.isPackaged) app.on('will-quit', updates.schedule());
 
   // автозапуск (--hidden) и «Сразу сворачивать в трей» — окно создаётся, но не показывается
   const hidden = process.argv.includes(HIDDEN_ARG) || settings.startMinimized;

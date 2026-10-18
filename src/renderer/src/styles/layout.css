@@ -387,6 +387,46 @@
   color: var(--accent-text);
 }
 
+.status-update {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-chip);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+}
+
+.status-update:hover {
+  background: var(--accent-hover);
+}
+
+/* баннер «Обновите приложение» (minAppVersion) */
+.update-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-card);
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: var(--fs-small);
+}
+
+.update-banner > svg {
+  flex-shrink: 0;
+  color: var(--accent-text);
+}
+
+.update-banner-text {
+  flex: 1;
+}
+
 .status-version {
   font-size: var(--fs-tiny);
 }

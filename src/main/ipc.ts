@@ -21,6 +21,7 @@ import { showRuleMenu } from './menus';
 import { openExternalSafe } from './security';
 import { getSettings, setSettings } from './settings';
 import type { SyncService } from './sync';
+import type { UpdateService } from './updater';
 import { getMainWindow, showMainWindow } from './windows/mainWindow';
 import { hideQuick, showQuick } from './windows/quickWindow';
 
@@ -28,6 +29,7 @@ export type IpcContext = {
   db: Db;
   logsDir: string;
   sync: SyncService;
+  updates: UpdateService;
   /** Сменить глобальную горячую клавишу; false — сочетание занято или недопустимо */
   changeHotkey(accel: string): boolean;
   hotkeyRegistered(): boolean;
@@ -85,6 +87,8 @@ const ARGS: { [K in keyof InvokeApi]: z.ZodType<Parameters<InvokeApi[K]>> } = {
   setSettings: z.tuple([SettingsPatch]),
   openLogsFolder: z.tuple([]),
   getAppInfo: z.tuple([]),
+  getUpdateStatus: z.tuple([]),
+  installUpdate: z.tuple([]),
 } as never;
 
 export function registerIpc(ctx: IpcContext): void {
@@ -145,6 +149,8 @@ export function registerIpc(ctx: IpcContext): void {
       return next;
     },
     openLogsFolder: async () => void (await shell.openPath(logsDir)),
+    getUpdateStatus: async () => ctx.updates.get(),
+    installUpdate: async () => ctx.updates.install(),
     getAppInfo: async () => {
       const builtAt = repo.getMeta(db, 'data_built_at');
       return {

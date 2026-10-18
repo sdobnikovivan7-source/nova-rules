@@ -33,6 +33,7 @@ const api: Api = {
   onNavigate: (cb) => on(EVENTS.navigate, cb),
   onSettingsChanged: (cb) => on(EVENTS.settingsChanged, cb),
   onQuickShown: (cb) => on(EVENTS.quickShown, cb),
+  onUpdateStatus: (cb) => on(EVENTS.updateStatus, cb),
   window: {
     minimize: () => ipcRenderer.send(COMMANDS.windowMinimize),
     close: () => ipcRenderer.send(COMMANDS.windowClose),

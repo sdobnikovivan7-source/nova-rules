@@ -125,6 +125,17 @@ export type SyncStatus = {
   appOutdated?: boolean;
 };
 
+/**
+ * Обновление приложения: checking — идёт проверка; downloading — скачивается в фоне;
+ * ready — скачано, установится при перезапуске или выходе.
+ */
+export type UpdateStatus = {
+  state: 'idle' | 'checking' | 'downloading' | 'ready';
+  version?: string;
+  /** Скачано, % */
+  percent?: number;
+};
+
 export type AppInfo = {
   version: string;
   dataVersion: number;
@@ -171,6 +182,9 @@ export interface InvokeApi {
   setSettings(patch: Partial<Settings>): Promise<Settings>;
   openLogsFolder(): Promise<void>;
   getAppInfo(): Promise<AppInfo>;
+  getUpdateStatus(): Promise<UpdateStatus>;
+  /** Перезапустить и установить скачанное обновление */
+  installUpdate(): Promise<void>;
 }
 
 export const INVOKE_METHODS = [
@@ -194,6 +208,8 @@ export const INVOKE_METHODS = [
   'setSettings',
   'openLogsFolder',
   'getAppInfo',
+  'getUpdateStatus',
+  'installUpdate',
 ] as const satisfies readonly (keyof InvokeApi)[];
 
 // все методы InvokeApi перечислены в INVOKE_METHODS
@@ -215,6 +231,7 @@ export const EVENTS = {
   settingsChanged: 'event:settingsChanged',
   /** Окно быстрого поиска показано — фокус в поле */
   quickShown: 'event:quickShown',
+  updateStatus: 'event:updateStatus',
 } as const;
 
 /** Команды renderer → main без ответа */
@@ -235,6 +252,7 @@ export interface Api extends InvokeApi {
   onNavigate(cb: (route: string) => void): () => void;
   onSettingsChanged(cb: (s: Settings) => void): () => void;
   onQuickShown(cb: () => void): () => void;
+  onUpdateStatus(cb: (s: UpdateStatus) => void): () => void;
   window: { minimize(): void; close(): void };
   quick: { show(): void; hide(): void; openInMain(route: string): void };
   pauseHotkey(pause: boolean): void;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AppInfo, CategoryView, Settings, SyncStatus } from '@shared/ipc';
+import type { AppInfo, CategoryView, Settings, SyncStatus, UpdateStatus } from '@shared/ipc';
 import { api } from './api';
 
 type AppState = {
@@ -8,6 +8,8 @@ type AppState = {
   settings: Settings | null;
   sync: SyncStatus | null;
   info: AppInfo | null;
+  /** Обновление приложения */
+  update: UpdateStatus;
   /** Растёт при каждом `data:updated` — экраны перечитывают данные */
   dataRevision: number;
   unseenChanges: number;
@@ -32,6 +34,7 @@ export const useApp = create<AppState>((set, get) => ({
   settings: null,
   sync: null,
   info: null,
+  update: { state: 'idle' },
   dataRevision: 0,
   unseenChanges: 0,
   favoriteIds: new Set(),
@@ -39,14 +42,15 @@ export const useApp = create<AppState>((set, get) => ({
   toast: null,
 
   async load() {
-    const [categories, settings, sync, info] = await Promise.all([
+    const [categories, settings, sync, info, update] = await Promise.all([
       api.getCategories(),
       api.getSettings(),
       api.getSyncStatus(),
       api.getAppInfo(),
+      api.getUpdateStatus(),
       get().reloadUserState(),
     ]);
-    set({ categories, settings, sync, info, ready: true });
+    set({ categories, settings, sync, info, update, ready: true });
   },
 
   async reloadData() {
@@ -83,6 +87,7 @@ export const useApp = create<AppState>((set, get) => ({
 export function subscribeToMain(navigate: (route: string) => void): () => void {
   const offs = [
     api.onSyncStatus((sync) => useApp.setState({ sync })),
+    api.onUpdateStatus((update) => useApp.setState({ update })),
     api.onDataUpdated(() => void useApp.getState().reloadData()),
     api.onUserStateChanged(() => void useApp.getState().reloadUserState()),
     api.onSettingsChanged((settings) => {

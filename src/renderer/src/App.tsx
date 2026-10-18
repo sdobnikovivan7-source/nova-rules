@@ -5,6 +5,7 @@ import { Sidebar } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
 import { Toast } from './components/Toast';
 import { TopBar } from './components/TopBar';
+import { UpdateBanner } from './components/UpdateBanner';
 import { useFontScale } from './fontScale';
 import { Category } from './screens/Category';
 import { Changes } from './screens/Changes';
@@ -63,6 +64,7 @@ export function App() {
         <div className="main-col">
           {/* у «Настроек» по макету нет поля поиска — заголовок и кнопки окна внутри панели */}
           {pathname !== '/settings' && <TopBar />}
+          <UpdateBanner />
           <main className="content">
             {ready && (
               <Routes>
