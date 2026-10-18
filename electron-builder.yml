@@ -57,4 +57,4 @@ publish:
   provider: github
   owner: sdobnikovivan7-source
   repo: nova-rules
-  releaseType: release
+  releaseType: draft # публикуется вручную после проверки на VirusTotal
