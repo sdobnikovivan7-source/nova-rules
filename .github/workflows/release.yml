@@ -62,6 +62,13 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
 
+      # черновик заранее: иначе electron-builder грузит файлы параллельно и создаёт два черновика
+      - name: Черновик релиза
+        shell: bash
+        run: gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --draft --title "${GITHUB_REF_NAME#v}" --notes ""
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Сборка и публикация
         run: pnpm build && pnpm exec electron-builder --win --publish always
         env:
