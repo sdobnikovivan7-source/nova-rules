@@ -5,7 +5,7 @@ import type { SearchRow } from '@shared/ipc';
 import { readDataDir } from '../src/main/data';
 import { openDb } from '../src/main/db';
 import * as repo from '../src/main/db/repo';
-import { matchRanges, SearchEngine } from '../src/renderer/src/search/engine';
+import { matchRanges, readable, SearchEngine } from '../src/renderer/src/search/engine';
 import {
   applyFilters,
   countByCategory,
@@ -72,9 +72,11 @@ describe('поиск по словам', () => {
     expect(ids('рк')).toContain('402988:1.6');
   });
 
-  it('синоним-основа показывается словами из правил', () => {
+  it('синоним полностью — как в словаре, основа со * — словами из правил', () => {
     const capt = run('капт');
-    expect(capt.explain.synonyms[0]?.shown).toMatch(/^войн\S* за территори\S+$/);
+    expect(capt.explain.synonyms[0]?.shown).toBe('война за территорию');
+    expect(readable('полици*', run('лспд').hits)).toMatch(/^полиц\S+$/);
+    expect(readable('полици*', [])).toBe('полици');
   });
 
   it('несколько слов — все должны встретиться', () => {

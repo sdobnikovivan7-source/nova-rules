@@ -144,7 +144,7 @@ export class SearchEngine {
   /** «крайм», «криминал», «гос», «семьи» → категория */
   resolveCategory(text: string): CategoryRef | null {
     const w = normalize(text.trim());
-    const candidates = [w, ...(this.synonyms[w] ?? []).map(normalize)]
+    const candidates = [w, ...(this.synonyms[w] ?? []).map((s) => normalize(s.replaceAll('*', '')))]
       .map((c) => (c.includes(' ') ? c : (processTerm(c) ?? c)))
       .filter((c) => c.length >= 3);
     for (const cat of this.categories) {
@@ -243,13 +243,16 @@ export class SearchEngine {
 }
 
 /**
- * Синонимы в словаре часто записаны основой («война за территори») — для пояснения
- * берём полную форму из текста найденного пункта («война за территорию»).
+ * Синоним для пояснения. Записанный полностью («война за территорию») показывается как есть;
+ * основа со звёздочкой («государственн*») — полной формой из текста найденного пункта
+ * («государственных»). На поиск звёздочка не влияет: токенизатор её не видит.
  */
 export function readable(alt: string, hits: readonly Hit[]): string {
-  // слова синонима по основам: «война за территори» найдёт и «войне за территорию»
-  const need = tokenize(alt).map((w) => processTerm(w) ?? normalize(w));
-  if (!need.length) return alt;
+  if (!alt.includes('*')) return alt;
+  const plain = alt.replaceAll('*', '');
+  // слова синонима по основам: «полици*» найдёт и «полиции», и «полицейский»
+  const need = tokenize(plain).map((w) => processTerm(w) ?? normalize(w));
+  if (!need.length) return plain;
   for (const { row } of hits.slice(0, 50)) {
     const text = `${row.text} ${row.notes}`;
     const ws = words(text);
@@ -261,7 +264,7 @@ export function readable(alt: string, hits: readonly Hit[]): string {
       if (ok) return text.slice(ws[i]!.start, ws[i + need.length - 1]!.end).toLowerCase();
     }
   }
-  return alt;
+  return plain;
 }
 
 /** Диапазоны слов текста, чьи основы совпали с запросом */
