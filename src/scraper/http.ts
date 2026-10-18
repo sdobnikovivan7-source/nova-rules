@@ -42,10 +42,13 @@ export class BlockedError extends Error {
 
 /** Страница-заглушка антибот-защиты вместо содержимого форума */
 export function isChallengePage(html: string): boolean {
-  return html.includes('id="l7-config"') || /<title>[^<]*(Checking your browser|Проверка браузера)/i.test(html);
+  return (
+    html.includes('id="l7-config"') ||
+    /<title>[^<]*(Checking your browser|Проверка браузера)/i.test(html)
+  );
 }
 
-const defaultSleep =(ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export class Http {
   private last = 0;

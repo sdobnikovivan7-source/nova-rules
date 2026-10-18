@@ -22,10 +22,14 @@
 
 ```
 pnpm install
-pnpm dev        # приложение
-pnpm scrape     # сборщик правил
+pnpm scrape --out out/data   # сборщик правил (--offline — из test/fixtures, без сети)
+pnpm seed                    # out/data → resources/seed: данные для первого запуска
+pnpm dev                     # приложение
+pnpm build                   # сборка в out/
 pnpm test
 ```
+
+Данные приложения — `%APPDATA%/NovaRules` (`nova.db`, `settings.json`, `logs/`). Чтобы заново наполнить базу из seed, удалите `nova.db*`.
 
 ## Лицензия
 

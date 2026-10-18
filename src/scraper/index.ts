@@ -84,7 +84,9 @@ export async function runScrape(opts: ScrapeOptions): Promise<ScrapeResult> {
       if (cat.forumId) {
         let pages = 1;
         for (let page = 1; page <= pages; page++) {
-          const list = parseForumList(await fetchText(forumPageUrl(sources.baseUrl, cat.forumId, page)));
+          const list = parseForumList(
+            await fetchText(forumPageUrl(sources.baseUrl, cat.forumId, page)),
+          );
           if (page === 1) pages = Math.min(list.lastPage, 10);
           for (const t of list.threads) if (!ids.includes(t.id)) ids.push(t.id);
         }
@@ -123,7 +125,9 @@ export async function runScrape(opts: ScrapeOptions): Promise<ScrapeResult> {
 
   const reuse = (id: number, why: string) => {
     const old = prev.docs.get(id);
-    warn(`тема ${id}: ${why}${old ? ' — оставлена прошлая версия' : ' — прошлой версии нет, тема пропущена'}`);
+    warn(
+      `тема ${id}: ${why}${old ? ' — оставлена прошлая версия' : ' — прошлой версии нет, тема пропущена'}`,
+    );
     if (old) {
       docs.push(old);
       reused++;

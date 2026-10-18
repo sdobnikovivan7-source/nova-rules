@@ -1,0 +1,46 @@
+/**
+ * Настройки пользователя (electron-store → %APPDATA%/NovaRules/settings.json).
+ * Хранилище создаётся лениво: к этому моменту путь userData уже переназначен в index.ts.
+ */
+import Store from 'electron-store';
+import { DEFAULT_SETTINGS, FONT_SCALE_MAX, FONT_SCALE_MIN, type Settings } from '@shared/ipc';
+
+export type WindowState = {
+  x?: number;
+  y?: number;
+  width: number;
+  height: number;
+  maximized: boolean;
+};
+
+type Schema = { settings: Settings; window: WindowState };
+
+let store: Store<Schema> | null = null;
+
+function getStore(): Store<Schema> {
+  store ??= new Store<Schema>({
+    name: 'settings',
+    defaults: {
+      settings: DEFAULT_SETTINGS,
+      window: { width: 1100, height: 720, maximized: false },
+    },
+  });
+  return store;
+}
+
+const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+export function getSettings(): Settings {
+  // новые ключи из DEFAULT_SETTINGS появляются и у старых пользователей
+  return { ...DEFAULT_SETTINGS, ...getStore().get('settings') };
+}
+
+export function setSettings(patch: Partial<Settings>): Settings {
+  const next = { ...getSettings(), ...patch };
+  next.fontScale = Math.round(clamp(next.fontScale, FONT_SCALE_MIN, FONT_SCALE_MAX) * 100) / 100;
+  getStore().set('settings', next);
+  return next;
+}
+
+export const getWindowState = (): WindowState => getStore().get('window');
+export const setWindowState = (s: WindowState): void => getStore().set('window', s);

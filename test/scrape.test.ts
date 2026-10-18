@@ -79,7 +79,8 @@ describe('runScrape', () => {
     const base = fixtureFetcher(fixturesDir);
     const r = await runScrape({
       sources,
-      fetchText: async (url) => (url.includes('/forums/896/') ? '<html><body></body></html>' : base(url)),
+      fetchText: async (url) =>
+        url.includes('/forums/896/') ? '<html><body></body></html>' : base(url),
     });
     expect(r.docs).toHaveLength(35);
     expect(r.warnings.some((w) => /crime: .*список тем пуст/.test(w))).toBe(true);
@@ -88,7 +89,9 @@ describe('runScrape', () => {
   it('страница «Проверка браузера» → прогон прерывается BlockedError', async () => {
     const challenge =
       '<!doctype html><title>Checking your browser / Проверка браузера</title><div id="l7-config" hidden></div>';
-    await expect(runScrape({ sources, fetchText: async () => challenge })).rejects.toBeInstanceOf(BlockedError);
+    await expect(runScrape({ sources, fetchText: async () => challenge })).rejects.toBeInstanceOf(
+      BlockedError,
+    );
   });
 
   it('401 от форума → BlockedError', async () => {
