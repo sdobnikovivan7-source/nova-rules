@@ -4,6 +4,9 @@
  */
 import type { ChangeEntry, PunishKind, Rule, RuleDoc } from './schema';
 
+/** Репозиторий проекта: Issues, Releases */
+export const REPO_URL = 'https://github.com/sdobnikovivan7-source/nova-rules';
+
 export type Theme = 'dark' | 'light' | 'system';
 export type SyncMode = 'auto' | 'direct';
 
@@ -114,7 +117,13 @@ export type SyncStatus = {
 
 export type AppInfo = { version: string; dataVersion: number; dataBuiltAt?: string };
 
+/** Что выбрали в контекстном меню пункта (выполняет renderer — с тостом и обновлением) */
+export type RuleMenuAction = 'copy' | 'favorite' | 'forum' | 'report';
+
 export type ChangesQuery = { days?: number; categoryId?: string };
+
+/** Пользовательские счётчики для боковой панели и кнопок «В избранное» */
+export type UserState = { unseenChanges: number; favoriteIds: string[] };
 
 /** Методы «запрос — ответ» (ipcRenderer.invoke ↔ ipcMain.handle) */
 export interface InvokeApi {
@@ -131,6 +140,7 @@ export interface InvokeApi {
   getFavorites(): Promise<Favorite[]>;
   /** → true, если пункт теперь в избранном */
   toggleFavorite(ruleId: string): Promise<boolean>;
+  getUserState(): Promise<UserState>;
 
   syncNow(): Promise<void>;
   getSyncStatus(): Promise<SyncStatus>;
@@ -139,6 +149,8 @@ export interface InvokeApi {
   openExternal(url: string): Promise<void>;
   /** Текст пункта + номер + ссылка в буфер обмена (§10.6) */
   copyRule(ruleId: string): Promise<void>;
+  /** Системное контекстное меню пункта → выбранное действие (null — меню закрыли) */
+  showRuleMenu(ruleId: string): Promise<RuleMenuAction | null>;
   getSettings(): Promise<Settings>;
   setSettings(patch: Partial<Settings>): Promise<Settings>;
   openLogsFolder(): Promise<void>;
@@ -156,10 +168,12 @@ export const INVOKE_METHODS = [
   'markChangesSeen',
   'getFavorites',
   'toggleFavorite',
+  'getUserState',
   'syncNow',
   'getSyncStatus',
   'openExternal',
   'copyRule',
+  'showRuleMenu',
   'getSettings',
   'setSettings',
   'openLogsFolder',
@@ -177,6 +191,8 @@ export const invokeChannel = (method: keyof InvokeApi) => `api:${method}`;
 export const EVENTS = {
   syncStatus: 'event:syncStatus',
   dataUpdated: 'event:dataUpdated',
+  /** Изменилось избранное или «просмотрено» (из любого окна) */
+  userStateChanged: 'event:userStateChanged',
   /** Перейти по hash-маршруту (из трея, быстрого поиска, уведомления) */
   navigate: 'event:navigate',
 } as const;
@@ -192,6 +208,7 @@ export const COMMANDS = {
 export interface Api extends InvokeApi {
   onSyncStatus(cb: (s: SyncStatus) => void): () => void;
   onDataUpdated(cb: () => void): () => void;
+  onUserStateChanged(cb: () => void): () => void;
   onNavigate(cb: (route: string) => void): () => void;
   window: { minimize(): void; close(): void };
   quick: { hide(): void; openInMain(route: string): void };

@@ -1,0 +1,387 @@
+/* Базовые компоненты (§7 дизайна) */
+
+/* ── Кнопки (§7.5) ───────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--h-btn-secondary);
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--r-row);
+  background: none;
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 0.12s,
+    border-color 0.12s,
+    color 0.12s;
+  -webkit-app-region: no-drag;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+}
+
+.btn svg {
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  height: var(--h-btn);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-primary svg {
+  stroke-width: 2.2;
+}
+
+.btn-secondary {
+  border-color: var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text-rule);
+}
+
+.btn-secondary:hover:not(:disabled),
+.btn-outline:hover:not(:disabled),
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-chip-active);
+  color: var(--text);
+}
+
+.btn-outline {
+  border-color: var(--border-strong);
+  color: var(--text-rule);
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+}
+
+.btn-sm {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: var(--r-chip);
+}
+
+.btn-primary.btn-sm {
+  height: 34px;
+}
+
+.btn-window {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-color: var(--border);
+  border-radius: var(--r-nav);
+  background: var(--bg-panel);
+  color: var(--text-muted);
+}
+
+.btn-window:hover {
+  background: var(--bg-raised);
+  color: var(--text);
+}
+
+.btn-window[aria-label='Закрыть']:hover {
+  border-color: transparent;
+  background: #c42b1c;
+  color: #fff;
+}
+
+/* ── Чипы (§7.6) ─────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  height: var(--h-chip);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-chip);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 0.12s,
+    color 0.12s;
+}
+
+.chip-toc {
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.chip-toc:hover {
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+}
+
+.chip-toc.active {
+  background: var(--bg-chip-active);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.chip-filter {
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+}
+
+.chip-filter:hover {
+  background: var(--bg-chip-active);
+  color: var(--text);
+}
+
+.chip-filter.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.chip {
+  max-width: 100%;
+}
+
+.chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-count {
+  opacity: 0.85;
+}
+
+/* ── Сегменты ────────────────────────────────────────────── */
+.segments {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-nav);
+  background: var(--bg-raised);
+}
+
+.segments-inset {
+  background: var(--bg-inset);
+}
+
+.segment {
+  height: var(--h-chip);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-segment);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: var(--fs-meta);
+  white-space: nowrap;
+}
+
+.segments-sm .segment {
+  height: 28px;
+}
+
+.segment:hover {
+  color: var(--text);
+}
+
+.segment.active {
+  background: var(--bg-segment-active);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Тумблер (§7.7) ──────────────────────────────────────── */
+.toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: var(--bg-segment-active);
+  transition: background-color 0.15s;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition:
+    transform 0.15s,
+    background-color 0.15s;
+}
+
+.toggle.on {
+  background: var(--accent);
+}
+
+.toggle.on .toggle-knob {
+  transform: translateX(18px);
+  background: var(--on-accent);
+}
+
+.toggle:disabled {
+  opacity: 0.5;
+}
+
+/* ── kbd (§7.12) ─────────────────────────────────────────── */
+.kbd {
+  display: inline-block;
+  padding: 3px 7px;
+  border: 1px solid var(--border-kbd);
+  border-radius: var(--r-badge);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.kbd-lg {
+  padding: 5px 8px;
+  border-width: 0 0 2px;
+  border-color: var(--border-kbd-bottom);
+  background: var(--bg-chip-active);
+  color: var(--text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+}
+
+/* ── Бейдж наказания (§7.3, §2.5) ────────────────────────── */
+.punish-badge {
+  display: inline-block;
+  flex-shrink: 0;
+  max-width: 230px;
+  overflow: hidden;
+  padding: 4px 9px;
+  border-radius: var(--r-badge);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.punish-badge.lg {
+  max-width: 100%;
+  padding: 7px 12px;
+  border-radius: var(--r-chip);
+  font-size: var(--fs-small);
+  white-space: normal;
+}
+
+.tone-warn {
+  background: var(--p-warn-bg);
+  color: var(--p-warn);
+}
+
+.tone-jail {
+  background: var(--p-jail-bg);
+  color: var(--p-jail);
+}
+
+.tone-kick {
+  background: var(--p-kick-bg);
+  color: var(--p-kick);
+}
+
+.tone-ban {
+  background: var(--p-ban-bg);
+  color: var(--p-ban);
+}
+
+.tone-black {
+  background: var(--p-black-bg);
+  color: var(--p-black);
+}
+
+.tone-other {
+  background: var(--p-other-bg);
+  color: var(--p-other);
+}
+
+/* ── Теги изменений (§2.6) ───────────────────────────────── */
+.tag {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: var(--r-badge);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tag-changed {
+  background: var(--p-warn-bg);
+  color: var(--p-warn);
+}
+
+.tag-added {
+  background: var(--tag-added-bg);
+  color: var(--tag-added);
+}
+
+.tag-removed {
+  background: var(--p-ban-bg);
+  color: var(--p-ban);
+}
+
+.tag-doc {
+  background: var(--tag-doc-bg);
+  color: var(--tag-doc);
+}
+
+/* ── Подсветка совпадений (§7.8) ─────────────────────────── */
+mark {
+  padding: 0 2px;
+  border-radius: var(--r-mark);
+  background: var(--accent-mark-bg);
+  color: var(--accent-mark-text);
+}
+
+/* ── Тост ────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: calc(var(--h-status) + 18px);
+  left: 50%;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-kbd);
+  border-radius: var(--r-row);
+  background: var(--bg-chip-active);
+  color: var(--text);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  transform: translateX(-50%);
+  animation: toast-in 0.15s ease-out;
+  pointer-events: none;
+}
+
+.toast svg {
+  color: var(--ok);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+}

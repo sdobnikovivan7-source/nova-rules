@@ -2,24 +2,11 @@
  * Строка состояния (§7.10 дизайна): точка статуса + «Правила от …» → состояние →
  * «Проверить» → (справа) подсказка горячей клавиши → версия.
  */
-import { RotateCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import type { SyncStatus } from '@shared/ipc';
 import { api } from '../api';
+import { fmtDate, fmtHotkey } from '../format';
 import { useApp } from '../store';
-
-export const fmtDate = (iso?: string) =>
-  iso
-    ? new Date(iso).toLocaleString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null;
-
-/** 'Control+Shift+Space' → 'Ctrl+Shift+Space' */
-export const fmtHotkey = (accel: string) =>
-  accel.replace(/\b(Control|CommandOrControl|CmdOrCtrl)\b/g, 'Ctrl');
 
 type View = { tone: 'ok' | 'busy' | 'warn'; text: string | null };
 
@@ -69,7 +56,7 @@ export function StatusBar() {
         onClick={() => void api.syncNow()}
         title="Проверить обновления правил (F5)"
       >
-        <RotateCw size={13} className={busy ? 'spin' : undefined} />
+        <RefreshCw size={13} className={busy ? 'spin' : undefined} />
         Проверить
       </button>
       <span className="status-right">

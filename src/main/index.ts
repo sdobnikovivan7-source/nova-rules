@@ -5,16 +5,18 @@
  * %APPDATA%/nova-rules по имени пакета.
  */
 import path from 'node:path';
-import { app, BrowserWindow, net } from 'electron';
+import { app, BrowserWindow, Menu, net } from 'electron';
 import log from 'electron-log/main';
 import { EVENTS } from '@shared/ipc';
 import { SourcesConfigSchema } from '@shared/schema';
 import sourcesJson from '../../config/sources.json';
 import { openDb } from './db';
+import { installImageProtocol, registerImageScheme } from './images';
 import { registerIpc } from './ipc';
 import { installSecurity } from './security';
 import { seedIfEmpty } from './seed';
 import { getSettings } from './settings';
+import { applyTheme, watchTheme } from './theme';
 import { SyncService } from './sync';
 import { scrapeDirect } from './sync/direct';
 import { DATA_BASES } from './sync/endpoints';
@@ -23,6 +25,7 @@ import { createMainWindow, showMainWindow } from './windows/mainWindow';
 
 app.setPath('userData', path.join(app.getPath('appData'), 'NovaRules'));
 app.setAppUserModelId('com.novarules.app');
+registerImageScheme();
 
 const logsDir = path.join(app.getPath('userData'), 'logs');
 log.transports.file.resolvePathFn = () => path.join(logsDir, 'main.log');
@@ -45,6 +48,11 @@ async function start() {
     `NOVA Rules ${app.getVersion()} (Electron ${process.versions.electron}), ${app.isPackaged ? 'prod' : 'dev'}`,
   );
   installSecurity();
+  // своё меню не нужно: окно без рамки, а стандартное добавляет зум и перезагрузку страницы
+  Menu.setApplicationMenu(null);
+  applyTheme(getSettings().theme);
+  watchTheme();
+  installImageProtocol(path.join(app.getPath('userData'), 'images'));
 
   const db = openDb(path.join(app.getPath('userData'), 'nova.db'));
   app.on('will-quit', () => db.close());

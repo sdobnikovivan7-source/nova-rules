@@ -10,10 +10,21 @@ type AppState = {
   info: AppInfo | null;
   /** Растёт при каждом `data:updated` — экраны перечитывают данные */
   dataRevision: number;
+  unseenChanges: number;
+  favoriteIds: Set<string>;
+  /** Категория открытого документа — для подсветки в боковой панели */
+  openDocCategory: string | null;
+  /** Короткое сообщение внизу окна («Скопировано») */
+  toast: { id: number; text: string } | null;
   load(): Promise<void>;
   reloadData(): Promise<void>;
+  reloadUserState(): Promise<void>;
   updateSettings(patch: Partial<Settings>): Promise<void>;
+  toggleFavorite(ruleId: string): Promise<void>;
+  showToast(text: string): void;
 };
+
+let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
 export const useApp = create<AppState>((set, get) => ({
   ready: false,
@@ -22,6 +33,10 @@ export const useApp = create<AppState>((set, get) => ({
   sync: null,
   info: null,
   dataRevision: 0,
+  unseenChanges: 0,
+  favoriteIds: new Set(),
+  openDocCategory: null,
+  toast: null,
 
   async load() {
     const [categories, settings, sync, info] = await Promise.all([
@@ -29,17 +44,38 @@ export const useApp = create<AppState>((set, get) => ({
       api.getSettings(),
       api.getSyncStatus(),
       api.getAppInfo(),
+      get().reloadUserState(),
     ]);
     set({ categories, settings, sync, info, ready: true });
   },
 
   async reloadData() {
-    const [categories, info] = await Promise.all([api.getCategories(), api.getAppInfo()]);
+    const [categories, info] = await Promise.all([
+      api.getCategories(),
+      api.getAppInfo(),
+      get().reloadUserState(),
+    ]);
     set({ categories, info, dataRevision: get().dataRevision + 1 });
+  },
+
+  async reloadUserState() {
+    const u = await api.getUserState();
+    set({ unseenChanges: u.unseenChanges, favoriteIds: new Set(u.favoriteIds) });
   },
 
   async updateSettings(patch) {
     set({ settings: await api.setSettings(patch) });
+  },
+
+  async toggleFavorite(ruleId) {
+    const on = await api.toggleFavorite(ruleId);
+    get().showToast(on ? 'Добавлено в избранное' : 'Убрано из избранного');
+  },
+
+  showToast(text) {
+    clearTimeout(toastTimer);
+    set({ toast: { id: Date.now(), text } });
+    toastTimer = setTimeout(() => set({ toast: null }), 1800);
   },
 }));
 
@@ -48,6 +84,7 @@ export function subscribeToMain(navigate: (route: string) => void): () => void {
   const offs = [
     api.onSyncStatus((sync) => useApp.setState({ sync })),
     api.onDataUpdated(() => void useApp.getState().reloadData()),
+    api.onUserStateChanged(() => void useApp.getState().reloadUserState()),
     api.onNavigate(navigate),
   ];
   return () => offs.forEach((off) => off());

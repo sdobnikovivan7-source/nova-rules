@@ -480,6 +480,12 @@ export function getFavorites(db: Db): Favorite[] {
   });
 }
 
+export function getFavoriteIds(db: Db): string[] {
+  return (db.prepare('SELECT rule_id FROM favorites').all() as { rule_id: string }[]).map(
+    (r) => r.rule_id,
+  );
+}
+
 export function toggleFavorite(db: Db, ruleId: string, now = new Date()): boolean {
   if (db.prepare('DELETE FROM favorites WHERE rule_id = ?').run(ruleId).changes) return false;
   const rule = getRule(db, ruleId);

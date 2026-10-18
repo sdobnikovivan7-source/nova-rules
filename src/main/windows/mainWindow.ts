@@ -2,13 +2,13 @@
  * Главное окно: 1100×720, минимум 800×560, без системной рамки (свои кнопки в шапке),
  * запоминает размер и положение, показывается только после отрисовки — без белой вспышки.
  */
-import { BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen } from 'electron';
 import { getWindowState, setWindowState, type WindowState } from '../settings';
+import { windowBackground } from '../theme';
 import { loadPage, secureWebPreferences } from './common';
 
 const MIN_W = 800;
 const MIN_H = 560;
-const BG = '#0E0E10';
 
 let win: BrowserWindow | null = null;
 
@@ -38,12 +38,21 @@ export function createMainWindow(opts: { show: boolean }): BrowserWindow {
     minHeight: MIN_H,
     frame: false,
     show: false,
-    backgroundColor: BG,
+    backgroundColor: windowBackground(),
     title: 'NOVA Rules',
     autoHideMenuBar: true,
     webPreferences: secureWebPreferences(),
   });
   if (state.maximized) win.maximize();
+
+  // масштаб — только размер текста (fontScale в renderer), зум страницы выключен
+  void win.webContents.setVisualZoomLevelLimits(1, 1);
+  // меню приложения нет (вместе с ним пропали Ctrl+R и DevTools) — в dev DevTools по F12
+  if (!app.isPackaged) {
+    win.webContents.on('before-input-event', (_e, input) => {
+      if (input.type === 'keyDown' && input.key === 'F12') win?.webContents.toggleDevTools();
+    });
+  }
 
   win.once('ready-to-show', () => {
     if (opts.show) win?.show();

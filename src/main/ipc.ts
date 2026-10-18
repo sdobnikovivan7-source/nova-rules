@@ -2,7 +2,7 @@
  * Обработчики `window.api` (§9). Аргументы из renderer не доверенные — каждый
  * проверяется zod-схемой до вызова обработчика.
  */
-import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain, type IpcMainInvokeEvent, shell } from 'electron';
 import log from 'electron-log/main';
 import { z } from 'zod';
 import {
@@ -16,8 +16,10 @@ import {
 import type { Db } from './db';
 import * as repo from './db/repo';
 import { formatRuleForCopy } from './format';
+import { showRuleMenu } from './menus';
 import { openExternalSafe } from './security';
 import { getSettings, setSettings } from './settings';
+import { applyTheme } from './theme';
 import type { SyncService } from './sync';
 import { getMainWindow, showMainWindow } from './windows/mainWindow';
 
@@ -59,10 +61,12 @@ const ARGS: { [K in keyof InvokeApi]: z.ZodType<Parameters<InvokeApi[K]>> } = {
   markChangesSeen: z.tuple([z.array(z.string().max(500)).max(10_000)]).or(z.tuple([])),
   getFavorites: z.tuple([]),
   toggleFavorite: z.tuple([ruleId]),
+  getUserState: z.tuple([]),
   syncNow: z.tuple([]),
   getSyncStatus: z.tuple([]),
   openExternal: z.tuple([z.string().max(2000)]),
   copyRule: z.tuple([ruleId]),
+  showRuleMenu: z.tuple([ruleId]),
   getSettings: z.tuple([]),
   setSettings: z.tuple([SettingsPatch]),
   openLogsFolder: z.tuple([]),
@@ -70,6 +74,9 @@ const ARGS: { [K in keyof InvokeApi]: z.ZodType<Parameters<InvokeApi[K]>> } = {
 } as never;
 
 export function registerIpc({ db, logsDir, sync }: IpcContext): void {
+  const userStateChanged = () =>
+    BrowserWindow.getAllWindows().forEach((w) => w.webContents.send(EVENTS.userStateChanged));
+
   const impl: InvokeApi = {
     getCategories: async () => repo.getCategories(db),
     getDocs: async (categoryId) => repo.getDocs(db, categoryId),
@@ -78,9 +85,20 @@ export function registerIpc({ db, logsDir, sync }: IpcContext): void {
     getSearchCorpus: async () => repo.getSearchCorpus(db),
     getSynonyms: async () => repo.getSynonyms(db),
     getChanges: async (query) => repo.getChanges(db, query),
-    markChangesSeen: async (ids) => repo.markChangesSeen(db, ids),
+    markChangesSeen: async (ids) => {
+      repo.markChangesSeen(db, ids);
+      userStateChanged();
+    },
     getFavorites: async () => repo.getFavorites(db),
-    toggleFavorite: async (id) => repo.toggleFavorite(db, id),
+    toggleFavorite: async (id) => {
+      const on = repo.toggleFavorite(db, id);
+      userStateChanged();
+      return on;
+    },
+    getUserState: async () => ({
+      unseenChanges: repo.countUnseenChanges(db),
+      favoriteIds: repo.getFavoriteIds(db),
+    }),
     syncNow: () => sync.run({ manual: true }),
     getSyncStatus: async () => sync.status(),
     openExternal: (url) => openExternalSafe(url),
@@ -89,12 +107,19 @@ export function registerIpc({ db, logsDir, sync }: IpcContext): void {
       if (!rule) throw new Error(`пункт ${id} не найден`);
       clipboard.writeText(formatRuleForCopy(rule));
     },
+    async showRuleMenu(this: IpcMainInvokeEvent, id) {
+      const rule = repo.getRule(db, id);
+      const win = BrowserWindow.fromWebContents(this.sender);
+      if (!rule || !win) return null;
+      return showRuleMenu(win, repo.getFavoriteIds(db).includes(id));
+    },
     getSettings: async () => getSettings(),
     setSettings: async (patch) => {
       const before = getSettings();
       const next = setSettings(patch);
       // сменили источник данных — сразу проверить им
       if (next.syncMode !== before.syncMode) void sync.run({ manual: true });
+      if (next.theme !== before.theme) applyTheme(next.theme);
       return next;
     },
     openLogsFolder: async () => void (await shell.openPath(logsDir)),
@@ -109,13 +134,17 @@ export function registerIpc({ db, logsDir, sync }: IpcContext): void {
   };
 
   for (const method of Object.keys(ARGS) as (keyof InvokeApi)[]) {
-    ipcMain.handle(invokeChannel(method), async (_e, ...raw: unknown[]) => {
+    ipcMain.handle(invokeChannel(method), async (e, ...raw: unknown[]) => {
       const args = ARGS[method].safeParse(raw);
       if (!args.success) {
         log.warn(`IPC ${method}: неверные аргументы`, args.error.issues[0]);
         throw new Error(`IPC ${method}: неверные аргументы`);
       }
-      return (impl[method] as (...a: unknown[]) => unknown)(...(args.data as unknown[]));
+      // this — событие IPC: обработчику может понадобиться окно-отправитель
+      return (impl[method] as (this: IpcMainInvokeEvent, ...a: unknown[]) => unknown).apply(
+        e,
+        args.data as unknown[],
+      );
     });
   }
 

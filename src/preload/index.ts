@@ -29,6 +29,7 @@ const api: Api = {
   ...invoke,
   onSyncStatus: (cb) => on(EVENTS.syncStatus, cb),
   onDataUpdated: (cb) => on(EVENTS.dataUpdated, cb),
+  onUserStateChanged: (cb) => on(EVENTS.userStateChanged, cb),
   onNavigate: (cb) => on(EVENTS.navigate, cb),
   window: {
     minimize: () => ipcRenderer.send(COMMANDS.windowMinimize),

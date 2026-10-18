@@ -1,0 +1,77 @@
+/*
+ * Светлая тема (в дизайне не описана — подобрана по аналогии с тёмной).
+ * Тему выбирает main через nativeTheme.themeSource ('dark' | 'light' | 'system'),
+ * поэтому достаточно prefers-color-scheme: «Как в Windows» работает само.
+ * Жёлтый остаётся заливкой; жёлтый текст на белом не читается — для него --accent-text.
+ */
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+
+    --bg-window: #ececef;
+    --bg-panel: #ffffff;
+    --bg-card: #f6f6f8;
+    --bg-card-new: #efeff3;
+    --bg-raised: #f2f2f5;
+    --bg-selected: #ebebf0;
+    --bg-inset: #f4f4f7;
+    --bg-footer-quick: #f4f4f7;
+    --bg-chip-active: #e4e4ea;
+    --bg-segment-active: #d9d9e0;
+    --bg-hover: #ededf1;
+
+    --border: #e2e2e7;
+    --border-strong: #d8d8de;
+    --border-kbd: #d2d2d9;
+    --border-kbd-bottom: #c2c2ca;
+    --divider: #e8e8ec;
+
+    --text: #16161a;
+    --text-rule: #222227;
+    --text-secondary: #3d3d45;
+    --text-tertiary: #575760;
+    --text-muted: #676770;
+    --text-number: #77777f;
+    --text-faint: #85858d;
+
+    --accent: #ffc800;
+    --accent-hover: #ffd84d;
+    --accent-text: #8f6700;
+    --accent-text-hover: #6e4f00;
+    --accent-mark-text: #4d3800;
+    --accent-mark-bg: rgba(255, 200, 0, 0.38);
+    --accent-soft: rgba(255, 200, 0, 0.24);
+    --on-accent: #141414;
+    --on-accent-muted: #6b5600;
+
+    --ok: #1f9d63;
+    --ok-text: #17804f;
+    --info: #2f64c2;
+    --danger: #c4302c;
+
+    --p-warn: #8a6400;
+    --p-warn-bg: rgba(245, 197, 66, 0.24);
+    --p-jail: #a84c0c;
+    --p-jail-bg: rgba(243, 154, 82, 0.2);
+    --p-kick: #485a78;
+    --p-kick-bg: rgba(143, 163, 191, 0.22);
+    --p-ban: #bd2d29;
+    --p-ban-bg: rgba(239, 83, 80, 0.14);
+    --p-black: #6a3fc2;
+    --p-black-bg: rgba(166, 124, 240, 0.16);
+    --p-other: #45454d;
+    --p-other-bg: rgba(0, 0, 0, 0.06);
+
+    --tag-added: #17804f;
+    --tag-added-bg: rgba(76, 195, 138, 0.17);
+    --tag-doc: #2f64c2;
+    --tag-doc-bg: rgba(143, 179, 240, 0.22);
+    --diff-del: #b3261e;
+    --diff-del-bg: rgba(239, 83, 80, 0.14);
+    --diff-ins: #11703f;
+    --diff-ins-bg: rgba(76, 195, 138, 0.18);
+
+    --scroll-thumb: #cdcdd4;
+    --scroll-thumb-hover: #b3b3bc;
+  }
+}

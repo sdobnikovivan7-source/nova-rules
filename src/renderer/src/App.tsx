@@ -1,9 +1,11 @@
+import { Check } from 'lucide-react';
 import { useEffect } from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { api } from './api';
 import { Sidebar } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
-import { WindowControls } from './components/WindowControls';
+import { TopBar } from './components/TopBar';
+import { useFontScale } from './fontScale';
 import { Category } from './screens/Category';
 import { Changes } from './screens/Changes';
 import { Document } from './screens/Document';
@@ -14,11 +16,14 @@ import { subscribeToMain, useApp } from './store';
 
 /**
  * Маршруты (hash):
- *   /search · /category/:id · /doc/:id · /changes · /favorites · /settings
+ *   /search · /category/:id · /doc/:id[?rule=<id пункта>] · /changes ·
+ *   /favorites · /settings
  */
 export function App() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const ready = useApp((s) => s.ready);
+  useFontScale();
 
   useEffect(() => {
     void useApp.getState().load();
@@ -39,10 +44,9 @@ export function App() {
   return (
     <div className="app">
       <Sidebar />
-      <div className="app-main">
-        <header className="titlebar">
-          <WindowControls />
-        </header>
+      <div className="main-col">
+        {/* у «Настроек» по макету нет поля поиска — заголовок и кнопки окна внутри панели */}
+        {pathname !== '/settings' && <TopBar />}
         <main className="content">
           {ready && (
             <Routes>
@@ -59,6 +63,18 @@ export function App() {
         </main>
       </div>
       <StatusBar />
+      <Toast />
+    </div>
+  );
+}
+
+function Toast() {
+  const toast = useApp((s) => s.toast);
+  if (!toast) return null;
+  return (
+    <div key={toast.id} className="toast" role="status">
+      <Check size={16} strokeWidth={2.4} aria-hidden />
+      {toast.text}
     </div>
   );
 }
