@@ -1,0 +1,60 @@
+# Установщик для Windows (§11.1 плана): NSIS в один клик, в профиль пользователя, x64.
+# Сборка: pnpm dist (локально, без публикации) / release.yml по тегу v* (с публикацией).
+appId: com.novarules.app
+productName: NOVA Rules
+copyright: © 2026 Ivan. MIT. Неофициальный справочник, не связан с администрацией NOVA RP.
+
+directories:
+  output: dist
+  buildResources: resources
+
+files:
+  - out/**
+  # иконки окна и трея (import …?asset в main)
+  - resources/icons/**
+  - package.json
+  - '!**/*.map'
+  # better-sqlite3: нужен только готовый бинарник под Windows x64, без исходников SQLite
+  - '!**/node_modules/better-sqlite3/{deps,src}/**'
+  - '!**/node_modules/better-sqlite3/prebuilds/{darwin,linux,linuxmusl}-*.node'
+  - '!**/node_modules/better-sqlite3/prebuilds/win32-arm64.node'
+
+# переводы Chromium (меню, диалоги) — только русский и английский
+electronLanguages:
+  - ru
+  - en-US
+
+# снимок данных для первого запуска — рядом с app.asar (process.resourcesPath/seed)
+extraResources:
+  - from: resources/seed
+    to: seed
+
+asarUnpack:
+  - '**/node_modules/better-sqlite3/**'
+  - resources/icons/**
+
+# better-sqlite3 13 — N-API, бинарник от версии Electron не зависит; пересборка не нужна
+# (и без VS Build Tools упала бы)
+npmRebuild: false
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icons/icon.ico
+  executableName: NOVA Rules
+
+nsis:
+  oneClick: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: NOVA Rules
+  deleteAppDataOnUninstall: false
+  artifactName: NOVA-Rules-Setup-${version}.${ext}
+
+publish:
+  provider: github
+  owner: sdobnikovivan7-source
+  repo: nova-rules
+  releaseType: release

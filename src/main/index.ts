@@ -42,9 +42,9 @@ import {
 } from './windows/mainWindow';
 import { createQuickWindow, showQuick, toggleQuick } from './windows/quickWindow';
 
-// в dev можно запустить на отдельной папке данных (демо-база, проверка без своих данных)
-const devUserData = !app.isPackaged ? process.env['NOVA_USER_DATA'] : undefined;
-app.setPath('userData', devUserData ?? path.join(app.getPath('appData'), 'NovaRules'));
+// отдельная папка данных — демо-база, проверка сборки без своих данных (в т.ч. установленной)
+const customUserData = process.env['NOVA_USER_DATA'];
+app.setPath('userData', customUserData ?? path.join(app.getPath('appData'), 'NovaRules'));
 app.setAppUserModelId('com.novarules.app');
 registerImageScheme();
 

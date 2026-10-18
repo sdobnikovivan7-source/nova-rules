@@ -26,7 +26,8 @@
     "fixtures": "tsx --tsconfig tsconfig.node.json scripts/fetch-fixtures.ts",
     "parse-report": "tsx --tsconfig tsconfig.node.json scripts/parse-report.ts",
     "demo-db": "tsx --tsconfig tsconfig.node.json scripts/demo-db.ts",
-    "icons": "electron scripts/make-icons.mjs"
+    "icons": "electron scripts/make-icons.mjs",
+    "dist": "electron-vite build && electron-builder --win --publish never"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -36,46 +37,46 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/onest": "^5.3.1",
+    "@tanstack/react-virtual": "^3.14.21",
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/sanitize-html": "^2.16.2",
     "@vitejs/plugin-react": "^6.1.2",
+    "diff": "^9.0.0",
     "electron": "44.9.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^6.0.0",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
+    "lucide-react": "^1.59.0",
+    "minisearch": "^7.2.0",
     "prettier": "^3.9.10",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.4.0",
+    "snowball-stemmers": "^0.6.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "zustand": "^5.0.15"
   },
   "dependencies": {
-    "@fontsource/jetbrains-mono": "^5.3.0",
-    "@fontsource/onest": "^5.3.1",
-    "@tanstack/react-virtual": "^3.14.21",
     "better-sqlite3": "^13.0.3",
     "cheerio": "^1.2.0",
-    "diff": "^9.0.0",
     "domhandler": "^5.0.3",
     "electron-log": "^5.4.4",
     "electron-store": "^12.0.0",
     "electron-updater": "^6.8.9",
     "fast-xml-parser": "^5.11.2",
-    "lucide-react": "^1.59.0",
-    "minisearch": "^7.2.0",
     "p-retry": "^8.0.1",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "react-router": "^8.4.0",
     "sanitize-html": "^2.18.1",
-    "snowball-stemmers": "^0.6.0",
-    "zod": "^4.6.7",
-    "zustand": "^5.0.15"
+    "zod": "^4.6.7"
   }
 }

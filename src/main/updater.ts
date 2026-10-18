@@ -74,9 +74,8 @@ export class UpdateService {
     if (this.status.state === 'downloading' || this.status.state === 'ready') return;
     try {
       await this.deps.updater.checkForUpdates();
-    } catch (e) {
-      // нет сети, нет релизов — не страшно, попробуем через 6 ч
-      this.deps.log('warn', `обновление: ${(e as Error).message}`);
+    } catch {
+      // нет сети, нет релизов — не страшно, попробуем через 6 ч (в лог пишет событие error)
       if (this.status.state === 'checking') this.set({ state: 'idle' });
     }
   }
