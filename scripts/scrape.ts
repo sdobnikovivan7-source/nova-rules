@@ -7,12 +7,14 @@
  *
  * Код выхода 1, если есть предупреждения (в GitHub Actions это письмо владельцу).
  * Данные при этом всё равно записываются: сломанные темы заменены прошлой версией.
+ * Код 2 и никакой записи — форум закрыт антибот-проверкой или не получено ни одной темы.
  */
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { type RuleDoc, RuleDocSchema, SourcesConfigSchema } from '../src/shared/schema';
-import { runScrape } from '../src/scraper';
+import { runScrape, type ScrapeResult } from '../src/scraper';
+import { BlockedError } from '../src/scraper/http';
 import { diffDocs, mergeChanges } from '../src/scraper/diff';
 import { fixtureFetcher } from '../src/scraper/offline';
 import { readPrevMeta, writeData } from '../src/scraper/output';
@@ -53,36 +55,64 @@ const prevDocs = await readPrevDocs(args.prev);
 const prevMeta = args.prev ? await readPrevMeta(path.resolve(args.prev)) : { changes: [] };
 const started = new Date();
 
-const result = await runScrape({
-  sources,
-  prev: { docs: prevDocs },
-  fetchText: args.offline ? fixtureFetcher(path.join(root, 'test', 'fixtures')) : undefined,
-  log: args.quiet ? undefined : (m) => console.log(m),
-});
-
-const fresh = diffDocs(prevDocs, result.docs, started.toISOString());
-const out = path.resolve(args.out);
-const { manifest, changed } = await writeData(out, {
-  categories: result.categories,
-  docs: result.docs,
-  changes: mergeChanges(prevMeta.changes, fresh, started),
-  synonyms: await readFile(path.join(root, 'config', 'synonyms.json'), 'utf8'),
-  officialNotes: result.officialNotes,
-  warnings: result.warnings,
-  prevManifest: prevMeta.manifest,
-  now: started,
-});
-
-const rules = result.docs.reduce((n, d) => n + d.sections.reduce((m, s) => m + s.rules.length, 0), 0);
-const byType = fresh.reduce<Record<string, number>>((acc, c) => ({ ...acc, [c.type]: (acc[c.type] ?? 0) + 1 }), {});
-console.log(
-  `\nГотово за ${((Date.now() - started.getTime()) / 1000).toFixed(0)} с: тем ${result.stats.threads}, ` +
-    `разобрано ${result.stats.fetched}, из прошлой версии ${result.stats.reused}, пунктов ${rules}, ` +
-    `запросов ${result.stats.requests}.\n` +
-    `Данные ${changed ? `изменились → версия ${manifest.version}` : `без изменений (версия ${manifest.version})`}` +
-    `${fresh.length ? `, новых записей в ленте: ${fresh.length} ${JSON.stringify(byType)}` : ''} → ${out}`,
-);
-if (result.warnings.length) {
-  console.error(`\nПредупреждения (${result.warnings.length}):\n- ${result.warnings.join('\n- ')}`);
-  process.exitCode = 1;
+async function scrape(): Promise<ScrapeResult | null> {
+  try {
+    return await runScrape({
+      sources,
+      prev: { docs: prevDocs },
+      fetchText: args.offline ? fixtureFetcher(path.join(root, 'test', 'fixtures')) : undefined,
+      log: args.quiet ? undefined : (m) => console.log(m),
+    });
+  } catch (e) {
+    if (!(e instanceof BlockedError)) throw e;
+    console.error(`\n${e.message}\nДанные не записаны — остаётся прошлая версия.`);
+    return null;
+  }
 }
+
+async function publish(result: ScrapeResult) {
+  const fresh = diffDocs(prevDocs, result.docs, started.toISOString());
+  const out = path.resolve(args.out);
+  const { manifest, changed } = await writeData(out, {
+    categories: result.categories,
+    docs: result.docs,
+    changes: mergeChanges(prevMeta.changes, fresh, started),
+    synonyms: await readFile(path.join(root, 'config', 'synonyms.json'), 'utf8'),
+    officialNotes: result.officialNotes,
+    warnings: result.warnings,
+    prevManifest: prevMeta.manifest,
+    now: started,
+  });
+
+  const rules = result.docs.reduce(
+    (n, d) => n + d.sections.reduce((m, s) => m + s.rules.length, 0),
+    0,
+  );
+  const byType = fresh.reduce<Record<string, number>>(
+    (acc, c) => ({ ...acc, [c.type]: (acc[c.type] ?? 0) + 1 }),
+    {},
+  );
+  console.log(
+    `\nГотово за ${((Date.now() - started.getTime()) / 1000).toFixed(0)} с: тем ${result.stats.threads}, ` +
+      `разобрано ${result.stats.fetched}, из прошлой версии ${result.stats.reused}, пунктов ${rules}, ` +
+      `запросов ${result.stats.requests}.\n` +
+      `Данные ${changed ? `изменились → версия ${manifest.version}` : `без изменений (версия ${manifest.version})`}` +
+      `${fresh.length ? `, новых записей в ленте: ${fresh.length} ${JSON.stringify(byType)}` : ''} → ${out}`,
+  );
+  if (result.warnings.length) {
+    console.error(
+      `\nПредупреждения (${result.warnings.length}):\n- ${result.warnings.join('\n- ')}`,
+    );
+    process.exitCode = 1;
+  }
+}
+
+// process.exit() на Windows роняет Node при незакрытых сокетах fetch — только exitCode
+const result = await scrape();
+if (!result) process.exitCode = 2;
+else if (!result.docs.length) {
+  console.error(
+    `\nНи одной темы не получено — данные не записаны.\n- ${result.warnings.join('\n- ')}`,
+  );
+  process.exitCode = 2;
+} else await publish(result);

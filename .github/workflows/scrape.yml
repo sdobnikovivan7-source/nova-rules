@@ -47,7 +47,7 @@ jobs:
           echo "code=$?" >> "$GITHUB_OUTPUT"
 
       - name: Проверка результата
-        run: test -f out/data/manifest.json || { echo "Сборщик не записал данные"; exit 1; }
+        run: test -f out/data/manifest.json || { echo "::error::Данные не записаны (форум недоступен или закрыт антибот-проверкой) — публикация пропущена"; exit 1; }
 
       - name: Публикация в ветку data
         uses: peaceiris/actions-gh-pages@v4

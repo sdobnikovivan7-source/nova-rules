@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { RuleDoc, SourcesConfig } from '@shared/schema';
 import { SourcesConfigSchema } from '@shared/schema';
 import { runScrape } from '../src/scraper';
+import { BlockedError, HttpError } from '../src/scraper/http';
 import { fixtureFetcher } from '../src/scraper/offline';
 import { fixture, fixturesDir } from './helpers';
 import { readFileSync } from 'node:fs';
@@ -72,5 +73,33 @@ describe('runScrape', () => {
     expect(r.docs).toHaveLength(40);
     expect(r.categories.find((c) => c.id === 'crime')!.docIds).toHaveLength(5);
     expect(r.warnings[0]).toMatch(/crime: не удалось получить список/);
+  });
+
+  it('пустой список раздела без прошлой версии → предупреждение, а не «0 тем»', async () => {
+    const base = fixtureFetcher(fixturesDir);
+    const r = await runScrape({
+      sources,
+      fetchText: async (url) => (url.includes('/forums/896/') ? '<html><body></body></html>' : base(url)),
+    });
+    expect(r.docs).toHaveLength(35);
+    expect(r.warnings.some((w) => /crime: .*список тем пуст/.test(w))).toBe(true);
+  });
+
+  it('страница «Проверка браузера» → прогон прерывается BlockedError', async () => {
+    const challenge =
+      '<!doctype html><title>Checking your browser / Проверка браузера</title><div id="l7-config" hidden></div>';
+    await expect(runScrape({ sources, fetchText: async () => challenge })).rejects.toBeInstanceOf(BlockedError);
+  });
+
+  it('401 от форума → BlockedError', async () => {
+    const base = fixtureFetcher(fixturesDir);
+    const r = runScrape({
+      sources,
+      fetchText: async (url) => {
+        if (url.includes('/threads/402991/')) throw new HttpError(401, url);
+        return base(url);
+      },
+    });
+    await expect(r).rejects.toBeInstanceOf(BlockedError);
   });
 });

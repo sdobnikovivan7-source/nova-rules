@@ -30,7 +30,22 @@ export class HttpError extends Error {
   }
 }
 
-const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+/**
+ * Форум закрыт антибот-проверкой («Проверка браузера», 401/403 на все запросы).
+ * Прогон останавливается целиком: продолжать бессмысленно, а публиковать нечего.
+ */
+export class BlockedError extends Error {
+  constructor(readonly url: string) {
+    super(`форум закрыт проверкой браузера (антибот): ${url}`);
+  }
+}
+
+/** Страница-заглушка антибот-защиты вместо содержимого форума */
+export function isChallengePage(html: string): boolean {
+  return html.includes('id="l7-config"') || /<title>[^<]*(Checking your browser|Проверка браузера)/i.test(html);
+}
+
+const defaultSleep =(ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 export class Http {
   private last = 0;

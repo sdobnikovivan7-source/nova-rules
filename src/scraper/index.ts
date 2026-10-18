@@ -3,11 +3,12 @@
  * Чистый Node, без Electron: используется и в GitHub Actions, и в direct-режиме приложения.
  *
  * Принцип: сломанные данные не публикуются. Любая ошибка по теме или разделу →
- * берётся прошлая версия и пишется предупреждение.
+ * берётся прошлая версия и пишется предупреждение. Если форум закрыт антибот-проверкой,
+ * прогон прерывается с `BlockedError` и ничего не возвращает.
  */
 import type { Category, RuleDoc, SourcesConfig } from '@shared/schema';
 import { RuleDocSchema } from '@shared/schema';
-import { Http } from './http';
+import { BlockedError, Http, HttpError, isChallengePage } from './http';
 import { buildDoc, countRules } from './parse/doc';
 import { type OfficialNote, parseThread, threadUrl } from './parse/thread';
 import { forumPageUrl, parseForumList } from './sources/forumList';
@@ -50,7 +51,20 @@ export async function runScrape(opts: ScrapeOptions): Promise<ScrapeResult> {
   const http = opts.fetchText ? null : new Http({ userAgent: sources.userAgent, log });
   const fetchText = async (url: string) => {
     requests++;
-    return opts.fetchText ? opts.fetchText(url) : http!.getText(url);
+    let html: string;
+    try {
+      html = await (opts.fetchText ? opts.fetchText(url) : http!.getText(url));
+    } catch (e) {
+      const status = e instanceof HttpError ? e.status : undefined;
+      if (status === 401 || status === 403) throw new BlockedError(url);
+      throw e;
+    }
+    if (isChallengePage(html)) throw new BlockedError(url);
+    return html;
+  };
+  /** Блокировка форума — не «ошибка одной темы»: пробрасываем наверх */
+  const rethrowBlocked = (e: unknown) => {
+    if (e instanceof BlockedError) throw e;
   };
 
   const warnings: string[] = [];
@@ -83,14 +97,16 @@ export async function runScrape(opts: ScrapeOptions): Promise<ScrapeResult> {
             }
           }
         } catch (e) {
+          rethrowBlocked(e);
           log(`${cat.id}: RSS недоступен (${(e as Error).message}) — продолжаю без него`);
         }
       }
       for (const id of cat.threadIds ?? []) if (!ids.includes(id)) ids.push(id);
 
-      const prevCount = [...prev.docs.values()].filter((d) => d.categoryId === cat.id).length;
-      if (!ids.length && prevCount) throw new Error(`список тем пуст, а раньше было ${prevCount}`);
+      // пустых разделов правил не бывает: пустой список = вёрстка изменилась
+      if (!ids.length) throw new Error('список тем пуст');
     } catch (e) {
+      rethrowBlocked(e);
       warn(`${cat.id}: не удалось получить список тем — ${(e as Error).message}`);
       failedCategories.add(cat.id);
       continue;
@@ -121,6 +137,7 @@ export async function runScrape(opts: ScrapeOptions): Promise<ScrapeResult> {
       doc = buildDoc(page, ref.categoryId, sources.baseUrl);
       if (page.officialNotes.length) officialNotes[ref.id] = page.officialNotes;
     } catch (e) {
+      rethrowBlocked(e);
       reuse(ref.id, `ошибка загрузки или разбора (${(e as Error).message})`);
       continue;
     }
