@@ -24,6 +24,7 @@
     "test:watch": "vitest",
     "scrape": "tsx --tsconfig tsconfig.node.json scripts/scrape.ts",
     "fixtures": "tsx --tsconfig tsconfig.node.json scripts/fetch-fixtures.ts",
+    "import-snapshot": "tsx --tsconfig tsconfig.node.json scripts/import-snapshot.ts",
     "parse-report": "tsx --tsconfig tsconfig.node.json scripts/parse-report.ts",
     "demo-db": "tsx --tsconfig tsconfig.node.json scripts/demo-db.ts",
     "icons": "electron scripts/make-icons.mjs",

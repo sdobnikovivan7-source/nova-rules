@@ -4,6 +4,8 @@
  *   pnpm scrape --out out/data                    — с форума, первый прогон
  *   pnpm scrape --prev prev/data --out out/data   — с прошлой версией: diff, защита от поломки
  *   pnpm scrape --offline --out out/data          — из test/fixtures, без сети
+ *   pnpm scrape --from <dir> --prev ... --out ... — из папки со страницами, сохранёнными вручную
+ *                                                   (та же раскладка, что у test/fixtures)
  *
  * Код выхода 1, если есть предупреждения (в GitHub Actions это письмо владельцу).
  * Данные при этом всё равно записываются: сломанные темы заменены прошлой версией.
@@ -25,6 +27,7 @@ const { values: args } = parseArgs({
     prev: { type: 'string' },
     out: { type: 'string', default: 'out/data' },
     offline: { type: 'boolean', default: false },
+    from: { type: 'string' },
     quiet: { type: 'boolean', default: false },
   },
 });
@@ -60,7 +63,11 @@ async function scrape(): Promise<ScrapeResult | null> {
     return await runScrape({
       sources,
       prev: { docs: prevDocs },
-      fetchText: args.offline ? fixtureFetcher(path.join(root, 'test', 'fixtures')) : undefined,
+      fetchText: args.from
+        ? fixtureFetcher(path.resolve(args.from))
+        : args.offline
+          ? fixtureFetcher(path.join(root, 'test', 'fixtures'))
+          : undefined,
       log: args.quiet ? undefined : (m) => console.log(m),
     });
   } catch (e) {
