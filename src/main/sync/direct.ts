@@ -3,7 +3,7 @@
  * Прошлая версия — из SQLite: по ней считается diff и работает защита от поломки вёрстки.
  * Без Electron — тестируется в vitest.
  */
-import { type SourcesConfig } from '@shared/schema';
+import { type Overrides, type SourcesConfig } from '@shared/schema';
 import { runScrape } from '../../scraper';
 import { diffDocs, mergeChanges } from '../../scraper/diff';
 import type { Db } from '../db';
@@ -12,6 +12,8 @@ import { type DataInput, getAllDocs, getChangeEntries, getDataVersion, getMeta }
 export type DirectOptions = {
   db: Db;
   sources: SourcesConfig;
+  /** Поправки к пунктам (config/overrides.json) */
+  overrides?: Overrides;
   /** Загрузчик страниц; по умолчанию — вежливый Http сборщика */
   fetchText?: (url: string) => Promise<string>;
   log?: (msg: string) => void;
@@ -20,9 +22,9 @@ export type DirectOptions = {
 
 /** Собрать данные с форума. Бросает BlockedError, если форум закрыт антибот-проверкой. */
 export async function scrapeDirect(opts: DirectOptions): Promise<DataInput> {
-  const { db, sources, fetchText, log, now = new Date() } = opts;
+  const { db, sources, overrides, fetchText, log, now = new Date() } = opts;
   const prev = getAllDocs(db);
-  const result = await runScrape({ sources, prev: { docs: prev }, fetchText, log });
+  const result = await runScrape({ sources, overrides, prev: { docs: prev }, fetchText, log });
   if (!result.docs.length)
     throw new Error(`с форума не получено ни одной темы (${result.warnings.join('; ')})`);
 

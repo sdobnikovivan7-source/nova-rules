@@ -9,7 +9,8 @@ import { app, BrowserWindow, Menu, net } from 'electron';
 import log from 'electron-log/main';
 import updaterPkg from 'electron-updater';
 import { EVENTS } from '@shared/ipc';
-import { SourcesConfigSchema } from '@shared/schema';
+import { OverridesSchema, SourcesConfigSchema } from '@shared/schema';
+import overridesJson from '../../config/overrides.json';
 import sourcesJson from '../../config/sources.json';
 import { applyAutostart, HIDDEN_ARG, syncAutostart } from './autostart';
 import { openDb } from './db';
@@ -80,6 +81,7 @@ async function start() {
   await seedIfEmpty(db);
 
   const sources = SourcesConfigSchema.parse(sourcesJson);
+  const overrides = OverridesSchema.parse(overridesJson);
   const broadcast = (channel: string, ...args: unknown[]) =>
     BrowserWindow.getAllWindows().forEach((w) => w.webContents.send(channel, ...args));
 
@@ -119,7 +121,7 @@ async function start() {
     bases: DATA_BASES,
     appVersion: app.getVersion(),
     getMode: () => getSettings().syncMode,
-    direct: () => scrapeDirect({ db, sources, log: (m) => log.info(`direct: ${m}`) }),
+    direct: () => scrapeDirect({ db, sources, overrides, log: (m) => log.info(`direct: ${m}`) }),
     emit: (status) => {
       broadcast(EVENTS.syncStatus, status);
       // данные требуют версию новее — сразу искать обновление приложения

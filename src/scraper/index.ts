@@ -6,9 +6,10 @@
  * берётся прошлая версия и пишется предупреждение. Если форум закрыт антибот-проверкой,
  * прогон прерывается с `BlockedError` и ничего не возвращает.
  */
-import type { Category, RuleDoc, SourcesConfig } from '@shared/schema';
+import type { Category, Overrides, RuleDoc, SourcesConfig } from '@shared/schema';
 import { RuleDocSchema } from '@shared/schema';
 import { BlockedError, Http, HttpError, isChallengePage } from './http';
+import { applyOverrides } from './overrides';
 import { buildDoc, countRules } from './parse/doc';
 import { type OfficialNote, parseThread, threadUrl } from './parse/thread';
 import { forumPageUrl, parseForumList } from './sources/forumList';
@@ -19,6 +20,8 @@ export type PrevData = { docs: Map<number, RuleDoc> };
 export type ScrapeOptions = {
   sources: SourcesConfig;
   prev?: PrevData;
+  /** Поправки к пунктам (config/overrides.json) */
+  overrides?: Overrides;
   /** Загрузчик страниц; по умолчанию — вежливый Http */
   fetchText?: (url: string) => Promise<string>;
   log?: (msg: string) => void;
@@ -140,6 +143,10 @@ export async function runScrape(opts: ScrapeOptions): Promise<ScrapeResult> {
       const page = parseThread(await fetchText(threadUrl(sources.baseUrl, ref.id)), ref.id);
       doc = buildDoc(page, ref.categoryId, sources.baseUrl);
       if (page.officialNotes.length) officialNotes[ref.id] = page.officialNotes;
+      const ov = applyOverrides(doc, opts.overrides);
+      if (ov.applied.length) log(`тема ${ref.id}: применены поправки ${ov.applied.join(', ')}`);
+      for (const id of ov.obsolete) log(`поправка ${id} уже внесена в тему — её можно удалить`);
+      ov.warnings.forEach(warn);
     } catch (e) {
       rethrowBlocked(e);
       reuse(ref.id, `ошибка загрузки или разбора (${(e as Error).message})`);

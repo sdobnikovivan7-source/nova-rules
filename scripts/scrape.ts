@@ -14,7 +14,12 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { type RuleDoc, RuleDocSchema, SourcesConfigSchema } from '../src/shared/schema';
+import {
+  OverridesSchema,
+  type RuleDoc,
+  RuleDocSchema,
+  SourcesConfigSchema,
+} from '../src/shared/schema';
 import { runScrape, type ScrapeResult } from '../src/scraper';
 import { BlockedError } from '../src/scraper/http';
 import { diffDocs, mergeChanges } from '../src/scraper/diff';
@@ -54,6 +59,9 @@ async function readPrevDocs(dir: string | undefined): Promise<Map<number, RuleDo
 const sources = SourcesConfigSchema.parse(
   JSON.parse(await readFile(path.join(root, 'config', 'sources.json'), 'utf8')),
 );
+const overrides = OverridesSchema.parse(
+  JSON.parse(await readFile(path.join(root, 'config', 'overrides.json'), 'utf8')),
+);
 const prevDocs = await readPrevDocs(args.prev);
 const prevMeta = args.prev ? await readPrevMeta(path.resolve(args.prev)) : { changes: [] };
 const started = new Date();
@@ -63,6 +71,7 @@ async function scrape(): Promise<ScrapeResult | null> {
     return await runScrape({
       sources,
       prev: { docs: prevDocs },
+      overrides,
       fetchText: args.from
         ? fixtureFetcher(path.resolve(args.from))
         : args.offline

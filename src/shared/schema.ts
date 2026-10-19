@@ -150,6 +150,28 @@ export const SourcesConfigSchema = z.object({
 });
 export type SourcesConfig = z.infer<typeof SourcesConfigSchema>;
 
+/**
+ * Поправки к пунктам (config/overrides.json): администрация объявляет правки постом-журналом
+ * («Было / Стало»), а первый пост темы правит позже. Поправка применяется, только пока текст
+ * пункта на форуме равен `expect`; когда первый пост исправят, она перестаёт действовать сама.
+ */
+export const RuleOverrideSchema = z.object({
+  /** ID пункта, например «406242:2.1» */
+  id: z.string().min(1),
+  /** Пост с объявлением правки */
+  source: z.url(),
+  /** Текст пункта на форуме, к которому относится поправка */
+  expect: z.string().min(1),
+  text: z.string().min(1),
+  /** Новое наказание; не указано — остаётся как на форуме */
+  punishment: z.string().min(1).optional(),
+  /** Новые примечания; не указаны — остаются как на форуме */
+  notes: z.array(z.object({ type: NoteTypeSchema, text: z.string().min(1) })).optional(),
+});
+export type RuleOverride = z.infer<typeof RuleOverrideSchema>;
+export const OverridesSchema = z.object({ rules: z.array(RuleOverrideSchema) });
+export type Overrides = z.infer<typeof OverridesSchema>;
+
 /** Ключ — то, что вводит игрок; значения — как это написано в правилах. */
 export const SynonymsSchema = z.record(z.string(), z.union([z.array(z.string()), z.string()]));
 export type Synonyms = Record<string, string[]>;

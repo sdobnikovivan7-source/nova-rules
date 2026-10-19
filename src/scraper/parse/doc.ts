@@ -9,9 +9,7 @@ import type { ThreadPage } from './thread';
 export function buildDoc(page: ThreadPage, categoryId: string, baseUrl: string): RuleDoc {
   const { sections, paragraphMode } = buildStructure(linearize(page.html, baseUrl), page.id);
   const rules = sections.flatMap((s) => s.rules);
-  const hash = sha1(
-    JSON.stringify([page.title, sections.map((s) => [s.title, s.intro ?? '', s.rules.map((r) => r.hash)])]),
-  );
+  const hash = docHash(page.title, sections);
   return {
     id: page.id,
     categoryId,
@@ -30,5 +28,8 @@ export function buildDoc(page: ThreadPage, categoryId: string, baseUrl: string):
         : {}),
   };
 }
+
+export const docHash = (title: string, sections: RuleDoc['sections']) =>
+  sha1(JSON.stringify([title, sections.map((s) => [s.title, s.intro ?? '', s.rules.map((r) => r.hash)])]));
 
 export const countRules = (doc: RuleDoc) => doc.sections.reduce((n, s) => n + s.rules.length, 0);

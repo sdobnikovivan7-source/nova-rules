@@ -17,6 +17,9 @@ import { looksLikePunishment, parsePunishment } from './punishment';
 
 export const sha1 = (s: string) => createHash('sha1').update(s).digest('hex');
 
+export const ruleHash = (text: string, punishRaw: string | undefined, notes: { text: string }[]) =>
+  sha1([text, punishRaw ?? '', ...notes.map((n) => n.text)].join('\u0001'));
+
 // ---------------------------------------------------------------- распознавание
 
 /** «1.1», «1.1.», «2.10.3» */
@@ -414,7 +417,7 @@ function finalize(drafts: DraftSection[], docId: number, paragraphMode: boolean)
           id = `${docId}:p${++unnumbered}`;
         }
 
-        const hash = sha1([text, punishment?.raw ?? '', ...notes.map((n) => n.text)].join('\u0001'));
+        const hash = ruleHash(text, punishment?.raw, notes);
         return {
           id,
           number: d.number,
