@@ -23,7 +23,7 @@ import { getSettings, setSettings } from './settings';
 import type { SyncService } from './sync';
 import type { UpdateService } from './updater';
 import { getMainWindow, showMainWindow } from './windows/mainWindow';
-import { hideQuick, showQuick } from './windows/quickWindow';
+import { hideQuick, resetQuickBounds, showQuick } from './windows/quickWindow';
 
 export type IpcContext = {
   db: Db;
@@ -189,6 +189,7 @@ export function registerIpc(ctx: IpcContext): void {
   // окно быстрого поиска
   ipcMain.on(COMMANDS.quickShow, () => showQuick());
   ipcMain.on(COMMANDS.quickHide, () => hideQuick());
+  ipcMain.on(COMMANDS.quickResetBounds, () => resetQuickBounds());
   ipcMain.on(COMMANDS.quickOpenInMain, (_e, route: unknown) => {
     if (typeof route !== 'string' || !route.startsWith('/') || route.length > 300) return;
     hideQuick();

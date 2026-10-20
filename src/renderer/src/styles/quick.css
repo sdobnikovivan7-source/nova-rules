@@ -19,10 +19,20 @@ body {
   align-items: center;
   gap: 14px;
   height: 58px;
-  padding: 0 14px 0 20px;
+  padding: 0 14px 0 8px;
   border-bottom: 1px solid var(--divider);
-  /* окно можно подвинуть за строку поиска */
+  /* окно можно подвинуть за строку поиска (кроме поля и кнопок) и нижнюю полосу */
   -webkit-app-region: drag;
+}
+
+.quick-grip {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 18px;
+  height: 34px;
+  margin-right: -6px;
+  color: var(--text-faint);
 }
 
 .quick-icon {
@@ -211,6 +221,7 @@ body {
   color: var(--text-muted);
   font-size: var(--fs-label);
   white-space: nowrap;
+  -webkit-app-region: drag;
 }
 
 .quick-foot .kbd {

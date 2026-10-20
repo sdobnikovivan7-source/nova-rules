@@ -13,7 +13,10 @@ export type WindowState = {
   maximized: boolean;
 };
 
-type Schema = { settings: Settings; window: WindowState };
+/** Положение и размер окна быстрого поиска, если пользователь его двигал или растягивал */
+export type QuickBounds = { x: number; y: number; width: number; height: number };
+
+type Schema = { settings: Settings; window: WindowState; quick?: QuickBounds };
 
 let store: Store<Schema> | null = null;
 
@@ -44,3 +47,7 @@ export function setSettings(patch: Partial<Settings>): Settings {
 
 export const getWindowState = (): WindowState => getStore().get('window');
 export const setWindowState = (s: WindowState): void => getStore().set('window', s);
+
+export const getQuickBounds = (): QuickBounds | undefined => getStore().get('quick');
+export const setQuickBounds = (b: QuickBounds): void => getStore().set('quick', b);
+export const clearQuickBounds = (): void => getStore().delete('quick');

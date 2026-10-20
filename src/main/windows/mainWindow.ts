@@ -3,11 +3,11 @@
  * запоминает размер и положение, показывается только после отрисовки — без белой вспышки.
  * Крестик сворачивает в трей (настройка closeToTray) или завершает приложение.
  */
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { appIconPath } from '../icons';
-import { getSettings, getWindowState, setWindowState, type WindowState } from '../settings';
+import { getSettings, getWindowState, setWindowState } from '../settings';
 import { windowBackground } from '../theme';
-import { loadPage, prepareContents, secureWebPreferences } from './common';
+import { loadPage, onScreen, prepareContents, secureWebPreferences } from './common';
 
 const MIN_W = 800;
 const MIN_H = 560;
@@ -20,21 +20,9 @@ app.on('before-quit', () => void (quitting = true));
 
 export const getMainWindow = () => win;
 
-/** Сохранённая позиция видна хотя бы на одном мониторе? (монитор могли отключить) */
-function visible(s: WindowState): boolean {
-  if (s.x === undefined || s.y === undefined) return false;
-  const { x, y, width } = s;
-  return screen.getAllDisplays().some(({ workArea: a }) => {
-    // заголовок окна должен попадать в рабочую область
-    return (
-      x + width > a.x + 50 && x < a.x + a.width - 50 && y >= a.y - 10 && y < a.y + a.height - 50
-    );
-  });
-}
-
 export function createMainWindow(opts: { show: boolean }): BrowserWindow {
   const state = getWindowState();
-  const pos = visible(state) ? { x: state.x, y: state.y } : {};
+  const pos = onScreen(state) ? { x: state.x, y: state.y } : {};
 
   win = new BrowserWindow({
     ...pos,

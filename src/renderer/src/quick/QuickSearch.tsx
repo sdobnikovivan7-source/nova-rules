@@ -3,7 +3,7 @@
  * пояснение синонима, результаты в одну строку с путём. Клавиши: ↑↓ — выбор, Enter — раскрыть,
  * Ctrl+C — скопировать для жалобы, Ctrl+Enter — открыть в главном окне, Esc — свернуть / скрыть.
  */
-import { Pin, Search } from 'lucide-react';
+import { GripVertical, LocateFixed, Pin, Search } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { copyRule } from '../actions';
 import { api } from '../api';
@@ -109,6 +109,9 @@ export function QuickSearch() {
   return (
     <div className="quick" onKeyDown={onKeyDown}>
       <header className="quick-bar">
+        <span className="quick-grip" title="Перетащите, чтобы подвинуть окно">
+          <GripVertical size={16} strokeWidth={2.2} aria-hidden />
+        </span>
         <Search size={20} strokeWidth={2.2} className="quick-icon" aria-hidden />
         <input
           ref={input}
@@ -135,6 +138,18 @@ export function QuickSearch() {
           }}
         >
           <Pin size={17} strokeWidth={2.2} />
+        </button>
+        <button
+          type="button"
+          className="quick-pin"
+          aria-label="Вернуть окно в центр"
+          title="Вернуть окно в центр и исходный размер"
+          onClick={() => {
+            api.quick.resetBounds();
+            input.current?.focus();
+          }}
+        >
+          <LocateFixed size={17} strokeWidth={2.2} />
         </button>
         <button type="button" className="quick-esc" onClick={hide} aria-label="Скрыть окно">
           <Kbd>Esc</Kbd>

@@ -42,6 +42,7 @@ const api: Api = {
     show: () => ipcRenderer.send(COMMANDS.quickShow),
     hide: () => ipcRenderer.send(COMMANDS.quickHide),
     openInMain: (route) => ipcRenderer.send(COMMANDS.quickOpenInMain, route),
+    resetBounds: () => ipcRenderer.send(COMMANDS.quickResetBounds),
   },
   pauseHotkey: (pause) => ipcRenderer.send(COMMANDS.hotkeyPause, pause),
 };

@@ -241,6 +241,8 @@ export const COMMANDS = {
   quickShow: 'cmd:quickShow',
   quickHide: 'cmd:quickHide',
   quickOpenInMain: 'cmd:quickOpenInMain',
+  /** Забыть положение и размер быстрого поиска — снова по центру */
+  quickResetBounds: 'cmd:quickResetBounds',
   /** Запись нового сочетания в настройках: снять / вернуть глобальную клавишу */
   hotkeyPause: 'cmd:hotkeyPause',
 } as const;
@@ -254,6 +256,6 @@ export interface Api extends InvokeApi {
   onQuickShown(cb: () => void): () => void;
   onUpdateStatus(cb: (s: UpdateStatus) => void): () => void;
   window: { minimize(): void; close(): void };
-  quick: { show(): void; hide(): void; openInMain(route: string): void };
+  quick: { show(): void; hide(): void; openInMain(route: string): void; resetBounds(): void };
   pauseHotkey(pause: boolean): void;
 }

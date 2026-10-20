@@ -1,5 +1,17 @@
 import path from 'node:path';
-import { app, type BrowserWindow, type WebPreferences } from 'electron';
+import { app, screen, type BrowserWindow, type WebPreferences } from 'electron';
+
+/** Сохранённая позиция видна хотя бы на одном мониторе? (монитор могли отключить) */
+export function onScreen(s: { x?: number; y?: number; width: number }): boolean {
+  if (s.x === undefined || s.y === undefined) return false;
+  const { x, y, width } = s;
+  return screen.getAllDisplays().some(({ workArea: a }) => {
+    // верх окна (за него перетаскивают) должен попадать в рабочую область
+    return (
+      x + width > a.x + 50 && x < a.x + a.width - 50 && y >= a.y - 10 && y < a.y + a.height - 50
+    );
+  });
+}
 
 /** Одинаково для всех окон (§12) */
 export const secureWebPreferences = (): WebPreferences => ({
