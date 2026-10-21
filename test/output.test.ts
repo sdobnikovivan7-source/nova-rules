@@ -94,5 +94,5 @@ describe('writeData + ежедневный цикл', () => {
     expect(changedFiles.sort()).toEqual(['changes.json', 'docs/406244.json']);
     const changes = JSON.parse(await readFile(path.join(d3, 'changes.json'), 'utf8'));
     expect(changes).toHaveLength(1);
-  });
+  }, 30_000); // три полных разбора фикстур: на Windows-раннере GitHub дольше 5 с
 });
