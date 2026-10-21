@@ -213,7 +213,8 @@ function splitRedTail(segs: Seg[]): [Seg[], Seg[]] | null {
 
 type Block = { segs: Seg[]; list?: { ordered: boolean } };
 
-type DraftNote = { type: NoteType; blocks: Block[] };
+/** labelInList — метка сама стоит пунктом списка: соседние пункты списка ей не принадлежат */
+type DraftNote = { type: NoteType; blocks: Block[]; labelInList: boolean };
 
 type DraftRule = {
   number: string | null;
@@ -308,7 +309,7 @@ export function buildStructure(rawLines: Line[], docId: number): StructureResult
 
     const noteM = NOTE_RE.exec(text);
     if (noteM) {
-      const draft: DraftNote = { type: noteTypeOf(noteM[1]!), blocks: [] };
+      const draft: DraftNote = { type: noteTypeOf(noteM[1]!), blocks: [], labelInList: !!l.list };
       const rest = dropPrefix(l.segs, noteM[0].length);
       if (rest.some((s) => s.kind !== 'text' || s.text.trim())) draft.blocks.push({ segs: rest });
       if (r) {
@@ -355,8 +356,11 @@ export function buildStructure(rawLines: Line[], docId: number): StructureResult
       continue;
     }
 
-    if (n && (l.indent || !n.blocks.length)) n.blocks.push({ segs: l.segs });
-    else if (r) {
+    // «Примечание: …в случаях:» / «Исключение:» и следом список без отступа — весь список
+    // относится к примечанию, а не только первый его пункт
+    if (n && (l.indent || !n.blocks.length || (l.list && !n.labelInList))) {
+      n.blocks.push({ segs: l.segs, list: l.list ? { ordered: l.list.ordered } : undefined });
+    } else if (r) {
       note = null;
       r.blocks.push({ segs: l.segs, list: l.list ? { ordered: l.list.ordered } : undefined });
     } else section.intro.push({ segs: l.segs, list: l.list ? { ordered: l.list.ordered } : undefined });

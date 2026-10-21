@@ -49,6 +49,25 @@ describe('структура документов', () => {
     expect(r121.html).not.toContain('|');
   });
 
+  it('список без отступа после «Примечание: …в случаях:» / «Исключение:» целиком в примечании', () => {
+    const r58 = rule(406242, '5.8');
+    expect(r58.text).toBe('Запрещены открытые криминальные действия в городе с 10:00 до 23:00.');
+    expect(r58.html).not.toContain('<b></b>');
+    expect(r58.notes?.[1]).toMatchObject({ type: 'note' });
+    expect(r58.notes?.[1]?.text).toContain('попытка задержания союзного игрока');
+    expect(r58.notes?.[1]?.html).toContain('<li>');
+
+    const r12 = rule(404708, '1.2');
+    expect(r12.text).not.toContain('Цвет криминальной семьи');
+    expect(r12.notes?.at(-1)?.text).toContain('Цвет криминальной семьи определяется');
+
+    // метка сама пункт списка: соседний пункт («Список аббревиатур…») к примеру не относится
+    const r29 = rule(409119, '2.9');
+    expect(r29.notes?.[0]?.type).toBe('example');
+    expect(r29.notes?.[0]?.text).not.toContain('Список аббревиатур');
+    expect(r29.text).toContain('Список аббревиатур');
+  });
+
   it('номер в тексте не дублируется', () => {
     expect(rule(406244, '1.1').text).not.toMatch(/^1\.1/);
   });

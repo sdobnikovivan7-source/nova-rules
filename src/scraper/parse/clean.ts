@@ -271,6 +271,11 @@ export function renderLine(segs: Seg[]): string {
       continue;
     }
     let h = escapeHtml(s.text);
+    // пустой хвост после вырезанного наказания — без «<b></b>»
+    if (!s.text.trim()) {
+      out += h;
+      continue;
+    }
     const f = s.fmt;
     if (f.punish) h = `<span class="punish">${h}</span>`;
     if (f.s) h = `<s>${h}</s>`;

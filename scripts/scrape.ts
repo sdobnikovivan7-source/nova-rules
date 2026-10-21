@@ -6,6 +6,7 @@
  *   pnpm scrape --offline --out out/data          — из test/fixtures, без сети
  *   pnpm scrape --from <dir> --prev ... --out ... — из папки со страницами, сохранёнными вручную
  *                                                   (та же раскладка, что у test/fixtures)
+ *   --reparse — правился парсер, а не правила: данные пересобираются, лента изменений не пополняется
  *
  * Код выхода 1, если есть предупреждения (в GitHub Actions это письмо владельцу).
  * Данные при этом всё равно записываются: сломанные темы заменены прошлой версией.
@@ -34,6 +35,7 @@ const { values: args } = parseArgs({
     offline: { type: 'boolean', default: false },
     from: { type: 'string' },
     quiet: { type: 'boolean', default: false },
+    reparse: { type: 'boolean', default: false },
   },
 });
 
@@ -87,7 +89,7 @@ async function scrape(): Promise<ScrapeResult | null> {
 }
 
 async function publish(result: ScrapeResult) {
-  const fresh = diffDocs(prevDocs, result.docs, started.toISOString());
+  const fresh = args.reparse ? [] : diffDocs(prevDocs, result.docs, started.toISOString());
   const out = path.resolve(args.out);
   const { manifest, changed } = await writeData(out, {
     categories: result.categories,
