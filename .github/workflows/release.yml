@@ -5,7 +5,8 @@
 #
 # В установщик кладётся свежий снимок правил из ветки data (seed для первого запуска).
 # Пока ветки data нет (форум закрыт проверкой браузера) — снимок из фикстур в репозитории.
-# В Releases появляется черновик с NOVA-Rules-Setup-x.y.z.exe, .blockmap и latest.yml:
+# В Releases появляется черновик с NOVA-Rules-Setup-x.y.z.exe, .blockmap, latest.yml
+# и копией NOVA-Rules-Setup.exe (для прямой ссылки на скачивание):
 # проверить установщик на VirusTotal, добавить ссылку в описание и опубликовать —
 # автообновление видит только опубликованные релизы.
 name: release
@@ -71,6 +72,15 @@ jobs:
 
       - name: Сборка и публикация
         run: pnpm build && pnpm exec electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # копия без версии в имени — постоянная ссылка releases/latest/download/NOVA-Rules-Setup.exe
+      - name: Установщик под постоянным именем
+        shell: bash
+        run: |
+          cp "dist/NOVA-Rules-Setup-${GITHUB_REF_NAME#v}.exe" dist/NOVA-Rules-Setup.exe
+          gh release upload "$GITHUB_REF_NAME" dist/NOVA-Rules-Setup.exe --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -2,7 +2,7 @@
 
 Неофициальный справочник правил NOVA RP (GTA 5 RP) для Windows.
 
-**[Скачать последнюю версию](https://github.com/sdobnikovivan7-source/nova-rules/releases/latest)** — файл `NOVA-Rules-Setup-x.y.z.exe`.
+**[Скачать последнюю версию](https://github.com/sdobnikovivan7-source/nova-rules/releases/latest/download/NOVA-Rules-Setup.exe)** — сразу скачивается установщик `NOVA-Rules-Setup.exe` ([все версии](https://github.com/sdobnikovivan7-source/nova-rules/releases)).
 
 ![Документ правил](docs/screenshots/document.png)
 
