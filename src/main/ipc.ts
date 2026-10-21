@@ -30,6 +30,8 @@ export type IpcContext = {
   logsDir: string;
   sync: SyncService;
   updates: UpdateService;
+  /** Поискать новую версию приложения (в собранном приложении; в dev — ничего) */
+  checkAppUpdate(): Promise<void>;
   /** Сменить глобальную горячую клавишу; false — сочетание занято или недопустимо */
   changeHotkey(accel: string): boolean;
   hotkeyRegistered(): boolean;
@@ -123,7 +125,10 @@ export function registerIpc(ctx: IpcContext): void {
       unseenChanges: repo.countUnseenChanges(db),
       favoriteIds: repo.getFavoriteIds(db),
     }),
-    syncNow: () => sync.run({ manual: true }),
+    // «Проверить» — и правила, и новую версию приложения; ответ — когда готово и то и другое
+    syncNow: async () => {
+      await Promise.all([sync.run({ manual: true }), ctx.checkAppUpdate()]);
+    },
     getSyncStatus: async () => sync.status(),
     openExternal: (url) => openExternalSafe(url),
     copyRule: async (id) => {

@@ -103,7 +103,7 @@ async function start() {
     openMain: showMainWindow,
     openQuick: showQuick,
     openChanges: () => openRoute('/changes'),
-    syncNow: () => void sync.run({ manual: true }),
+    syncNow: () => void Promise.all([sync.run({ manual: true }), checkAppUpdate()]),
     quit: () => app.quit(),
   });
   app.on('will-quit', () => tray.destroy());
@@ -127,6 +127,8 @@ async function start() {
     beforeAutoInstall: markRestartHidden,
   });
   updaterPkg.autoUpdater.logger = log;
+
+  const checkAppUpdate = () => (app.isPackaged ? updates.check() : Promise.resolve());
 
   const sync = new SyncService({
     db,
@@ -176,6 +178,7 @@ async function start() {
     logsDir,
     sync,
     updates,
+    checkAppUpdate,
     changeHotkey: (accel) => changeQuickHotkey(accel, toggleQuick),
     hotkeyRegistered,
     pauseHotkey: setHotkeyPaused,

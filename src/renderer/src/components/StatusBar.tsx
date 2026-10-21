@@ -1,8 +1,10 @@
 /**
  * Строка состояния (§7.10 дизайна): точка статуса + «Правила от …» → состояние →
- * «Проверить» → (справа) подсказка горячей клавиши → версия.
+ * «Проверить» (правила и новая версия приложения) → (справа) обновление, подсказка
+ * горячей клавиши → версия.
  */
-import { CircleArrowUp, RefreshCw } from 'lucide-react';
+import { Check, CircleArrowUp, Download, RefreshCw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import type { SyncStatus } from '@shared/ipc';
 import { api } from '../api';
 import { fmtDate, fmtHotkey } from '../format';
@@ -28,6 +30,60 @@ export function statusView(s: SyncStatus): View {
   }
 }
 
+/** Проверка короче — анимацию всё равно показываем столько, чтобы её было видно */
+const MIN_SPIN_MS = 1100;
+/** Сколько держится итог «Всё актуально» / «Найдена версия» */
+const RESULT_MS = 2600;
+
+type Phase = { kind: 'idle' } | { kind: 'checking' } | { kind: 'done'; text: string };
+
+/**
+ * «Проверить»: вращающийся значок и бегущая полоса, пока идёт проверка (по кнопке, F5, трею
+ * или по расписанию), затем коротко итог. Найдена новая версия — справа появится её загрузка.
+ */
+function CheckButton({ busy }: { busy: boolean }) {
+  const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const run = async () => {
+    clearTimeout(timer.current);
+    setPhase({ kind: 'checking' });
+    const started = Date.now();
+    await api.syncNow().catch(() => undefined);
+    await new Promise((r) => setTimeout(r, Math.max(0, MIN_SPIN_MS - (Date.now() - started))));
+    const { sync, update } = useApp.getState();
+    if (sync?.state === 'error' || sync?.state === 'offline') {
+      // причина уже написана рядом — «Нет сети», «Сервер данных недоступен»
+      setPhase({ kind: 'idle' });
+      return;
+    }
+    const found = update.state === 'downloading' || update.state === 'ready';
+    setPhase({ kind: 'done', text: found ? `Найдена версия ${update.version}` : 'Всё актуально' });
+    timer.current = setTimeout(() => setPhase({ kind: 'idle' }), RESULT_MS);
+  };
+
+  const checking = phase.kind === 'checking' || busy;
+  const done = phase.kind === 'done' && !checking;
+  return (
+    <button
+      type="button"
+      className={`status-check${checking ? ' checking' : ''}${done ? ' done' : ''}`}
+      disabled={checking}
+      aria-busy={checking}
+      onClick={() => void run()}
+      title="Проверить обновления правил и новую версию приложения (F5)"
+    >
+      {done ? (
+        <Check size={13} strokeWidth={2.6} className="status-check-icon" />
+      ) : (
+        <RefreshCw size={13} className={checking ? 'spin' : undefined} />
+      )}
+      <span aria-live="polite">{checking ? 'Проверяю…' : done ? phase.text : 'Проверить'}</span>
+    </button>
+  );
+}
+
 export function StatusBar() {
   const sync = useApp((s) => s.sync);
   const info = useApp((s) => s.info);
@@ -37,7 +93,7 @@ export function StatusBar() {
 
   const date = fmtDate(sync.dataBuiltAt);
   const view = statusView(sync);
-  const busy = sync.state === 'checking';
+  const busy = sync.state === 'checking' || update.state === 'checking';
 
   return (
     <footer className="statusbar">
@@ -50,17 +106,17 @@ export function StatusBar() {
           {view.text}
         </span>
       )}
-      <button
-        type="button"
-        className="status-check"
-        disabled={busy}
-        onClick={() => void api.syncNow()}
-        title="Проверить обновления правил (F5)"
-      >
-        <RefreshCw size={13} className={busy ? 'spin' : undefined} />
-        Проверить
-      </button>
+      <CheckButton busy={busy} />
       <span className="status-right">
+        {update.state === 'downloading' && (
+          <span className="status-download" title="Новая версия скачивается в фоне">
+            <Download size={13} />
+            Загружаю версию {update.version} — {update.percent ?? 0} %
+            <span className="status-download-bar" aria-hidden>
+              <span style={{ width: `${update.percent ?? 0}%` }} />
+            </span>
+          </span>
+        )}
         {update.state === 'ready' && (
           <button
             type="button"
