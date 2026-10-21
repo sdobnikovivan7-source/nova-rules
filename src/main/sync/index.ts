@@ -42,6 +42,8 @@ export type SyncDeps = {
   emit?: (status: SyncStatus) => void;
   /** Данные записаны (`data:updated`, уведомление о новых изменениях) */
   onUpdated?: (info: { newChanges: ChangeEntry[] }) => void;
+  /** Central ответил (данные обновлены или те же) — например, раз в день запросить stats.json */
+  afterCentral?: () => void;
   log?: (level: 'info' | 'warn' | 'error', msg: string) => void;
   now?: () => Date;
 };
@@ -109,6 +111,7 @@ export class SyncService {
         this.log('info', `sync: версия ${res.manifest.version}, файлов ${res.downloaded.length}`);
       }
       this.set({ state: 'idle' });
+      this.deps.afterCentral?.();
     } catch (e) {
       const msg = (e as Error).message;
       if (e instanceof SchemaVersionError || e instanceof AppOutdatedError) {

@@ -33,6 +33,7 @@ import { applyTheme, watchTheme } from './theme';
 import { AppTray } from './tray';
 import { SyncService } from './sync';
 import { DATA_BASES } from './sync/endpoints';
+import { fetchStatsDaily } from './sync/stats';
 import { scheduleSync } from './sync/schedule';
 import { UpdateService } from './updater';
 import {
@@ -152,6 +153,13 @@ async function start() {
       updateTray();
       if (getSettings().notifyChanges) notifyChanges(newChanges, () => openRoute('/changes'));
     },
+    afterCentral: () =>
+      void fetchStatsDaily({
+        db,
+        fetch: (url, init) => net.fetch(url, init),
+        bases: DATA_BASES,
+        log: (m) => log.info(m),
+      }).then((stats) => stats && broadcast(EVENTS.statsUpdated, stats)),
     log: (level, msg) => log[level](msg),
   });
 

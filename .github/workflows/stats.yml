@@ -1,0 +1,60 @@
+# Примерное число игроков для плашки в приложении (этап 12) → data/stats.json в ветке data.
+#
+# Приложение запрашивает stats.json раз в день; jsDelivr публично считает запросы к файлу.
+# Здесь берётся среднее за последние 7 полных дней (scripts/stats.ts). Коммитится только
+# stats.json — правила и manifest.json не трогаются. Нет статистики — коммита нет.
+name: stats
+
+on:
+  schedule:
+    - cron: '37 4 * * *' # 07:37 МСК
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-branch
+  cancel-in-progress: false
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ветка data
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: data-branch
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Пересчёт
+        run: pnpm stats --out data-branch/data/stats.json
+
+      - name: Публикация в ветку data
+        id: push
+        working-directory: data-branch
+        run: |
+          git add data/stats.json
+          if git diff --cached --quiet; then
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "data: stats.json (${{ github.run_id }})"
+          git push
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Сброс кеша jsDelivr для stats.json
+        if: steps.push.outputs.changed == '1'
+        run: curl -fsS "https://purge.jsdelivr.net/gh/${{ github.repository }}@data/data/stats.json" || true

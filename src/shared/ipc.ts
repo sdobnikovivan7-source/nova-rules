@@ -2,7 +2,7 @@
  * Контракт IPC между main и renderer (§9 плана): типы `window.api` и имена каналов.
  * Renderer не имеет доступа к Node — всё только через эти методы.
  */
-import type { ChangeEntry, PunishKind, Rule, RuleDoc } from './schema';
+import type { ChangeEntry, PunishKind, Rule, RuleDoc, Stats } from './schema';
 
 /** Репозиторий проекта: Issues, Releases */
 export const REPO_URL = 'https://github.com/sdobnikovivan7-source/nova-rules';
@@ -185,6 +185,8 @@ export interface InvokeApi {
   getUpdateStatus(): Promise<UpdateStatus>;
   /** Перезапустить и установить скачанное обновление */
   installUpdate(): Promise<void>;
+  /** Примерное число игроков (data/stats.json); null — ещё не получали */
+  getStats(): Promise<Stats | null>;
 }
 
 export const INVOKE_METHODS = [
@@ -210,6 +212,7 @@ export const INVOKE_METHODS = [
   'getAppInfo',
   'getUpdateStatus',
   'installUpdate',
+  'getStats',
 ] as const satisfies readonly (keyof InvokeApi)[];
 
 // все методы InvokeApi перечислены в INVOKE_METHODS
@@ -232,6 +235,8 @@ export const EVENTS = {
   /** Окно быстрого поиска показано — фокус в поле */
   quickShown: 'event:quickShown',
   updateStatus: 'event:updateStatus',
+  /** Получено новое число игроков */
+  statsUpdated: 'event:statsUpdated',
 } as const;
 
 /** Команды renderer → main без ответа */
@@ -255,6 +260,7 @@ export interface Api extends InvokeApi {
   onSettingsChanged(cb: (s: Settings) => void): () => void;
   onQuickShown(cb: () => void): () => void;
   onUpdateStatus(cb: (s: UpdateStatus) => void): () => void;
+  onStatsUpdated(cb: (s: Stats) => void): () => void;
   window: { minimize(): void; close(): void };
   quick: { show(): void; hide(): void; openInMain(route: string): void; resetBounds(): void };
   pauseHotkey(pause: boolean): void;

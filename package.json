@@ -1,6 +1,6 @@
 {
   "name": "nova-rules",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "description": "Неофициальный справочник правил NOVA RP для Windows",
   "license": "MIT",
@@ -27,6 +27,7 @@
     "import-snapshot": "tsx --tsconfig tsconfig.node.json scripts/import-snapshot.ts",
     "parse-report": "tsx --tsconfig tsconfig.node.json scripts/parse-report.ts",
     "demo-db": "tsx --tsconfig tsconfig.node.json scripts/demo-db.ts",
+    "stats": "tsx --tsconfig tsconfig.node.json scripts/stats.ts",
     "icons": "electron scripts/make-icons.mjs",
     "promo": "electron scripts/make-promo.mjs",
     "dist": "electron-vite build && electron-builder --win --publish never"

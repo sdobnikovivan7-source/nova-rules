@@ -175,3 +175,16 @@ export type Overrides = z.infer<typeof OverridesSchema>;
 /** Ключ — то, что вводит игрок; значения — как это написано в правилах. */
 export const SynonymsSchema = z.record(z.string(), z.union([z.array(z.string()), z.string()]));
 export type Synonyms = Record<string, string[]>;
+
+/**
+ * data/stats.json — примерное число игроков (этап 12). Считает stats.yml по публичной
+ * статистике jsDelivr: приложение запрашивает этот файл раз в день, запросы за день ≈ игроки.
+ * В manifest.json не входит: версия данных от него не меняется.
+ */
+export const StatsSchema = z.object({
+  /** Среднее число запросов stats.json в день за `days` последних полных дней */
+  players: z.number().int().min(0),
+  days: z.number().int().min(0),
+  updatedAt: z.string(),
+});
+export type Stats = z.infer<typeof StatsSchema>;

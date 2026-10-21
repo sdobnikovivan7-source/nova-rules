@@ -16,3 +16,4 @@ export const count = (n: number, forms: readonly [string, string, string]) =>
 export const RULES = ['пункт', 'пункта', 'пунктов'] as const;
 export const DOCS = ['документ', 'документа', 'документов'] as const;
 export const CHANGES = ['изменение', 'изменения', 'изменений'] as const;
+export const PLAYERS = ['игрок', 'игрока', 'игроков'] as const;

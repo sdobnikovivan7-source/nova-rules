@@ -21,7 +21,9 @@ import type {
   Rule,
   RuleDoc,
   Section,
+  Stats,
 } from '@shared/schema';
+import { StatsSchema } from '@shared/schema';
 import { sanitizeRuleHtml } from '../../scraper/parse/sanitize';
 import type { Db } from './index';
 
@@ -44,7 +46,11 @@ export type MetaKey =
   | 'central_failing_since'
   /** Последний прогон direct (не чаще раза в сутки) */
   | 'last_direct_at'
-  | 'synonyms';
+  | 'synonyms'
+  /** data/stats.json — примерное число игроков (этап 12) */
+  | 'stats_json'
+  /** Местная дата последнего запроса stats.json (раз в день) */
+  | 'stats_fetched_on';
 
 export function getMeta(db: Db, key: MetaKey): string | undefined {
   const row = db.prepare('SELECT value FROM meta WHERE key = ?').get(key) as
@@ -365,6 +371,13 @@ export function getSearchCorpus(db: Db): SearchRow[] {
     punishKinds: r.punishKinds ? (JSON.parse(r.punishKinds) as PunishKind[]) : [],
     important: r.important === 1,
   }));
+}
+
+export function getStats(db: Db): Stats | null {
+  const raw = getMeta(db, 'stats_json');
+  if (!raw) return null;
+  const parsed = StatsSchema.safeParse(JSON.parse(raw));
+  return parsed.success ? parsed.data : null;
 }
 
 export function getSynonyms(db: Db): Record<string, string[]> {

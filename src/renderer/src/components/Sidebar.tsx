@@ -1,6 +1,7 @@
 /**
  * Боковая панель (§7.1 дизайна): логотип, «Поиск», категории со счётчиками документов,
- * «Изменения» с бейджем непросмотренных, «Избранное», «Настройки» внизу и дисклеймер.
+ * «Изменения» с бейджем непросмотренных, «Избранное», плашка с числом игроков,
+ * «Настройки» внизу и дисклеймер.
  */
 import {
   BookOpen,
@@ -15,10 +16,38 @@ import {
   SlidersHorizontal,
   Star,
   Users,
+  UsersRound,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
+import { plural, PLAYERS } from '../format';
 import { useApp } from '../store';
+
+/** Меньше — плашку не показываем: «≈ 3 игрока» скорее отпугивает */
+const MIN_PLAYERS = 10;
+
+/** Примерное число игроков (этап 12): оценка по запросам stats.json за неделю */
+function PlayersBadge() {
+  const stats = useApp((s) => s.stats);
+  if (!stats || stats.players < MIN_PLAYERS) return null;
+  const n = stats.players;
+  return (
+    <div
+      className="players"
+      title="Сколько игроков в среднем открывают программу за день — оценка по числу проверок правил за последние 7 дней. Программа не отправляет данных о вас."
+    >
+      <span className="players-icon" aria-hidden>
+        <UsersRound size={17} strokeWidth={2} />
+      </span>
+      <span className="players-text">
+        <span className="players-count">
+          ≈ {n.toLocaleString('ru-RU')} <span>{plural(n, PLAYERS)}</span>
+        </span>
+        <span className="players-sub">в среднем в день</span>
+      </span>
+    </div>
+  );
+}
 
 /** Имена иконок из config/sources.json */
 const ICONS: Record<string, LucideIcon> = {
@@ -111,6 +140,7 @@ export function Sidebar() {
         label="Избранное"
         end={favCount > 0 && <span className="nav-count">{favCount}</span>}
       />
+      <PlayersBadge />
 
       <NavItem to="/settings" icon={SlidersHorizontal} label="Настройки" className="nav-settings" />
       <p className="sidebar-disclaimer">

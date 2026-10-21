@@ -89,6 +89,7 @@ const ARGS: { [K in keyof InvokeApi]: z.ZodType<Parameters<InvokeApi[K]>> } = {
   getAppInfo: z.tuple([]),
   getUpdateStatus: z.tuple([]),
   installUpdate: z.tuple([]),
+  getStats: z.tuple([]),
 } as never;
 
 export function registerIpc(ctx: IpcContext): void {
@@ -151,6 +152,7 @@ export function registerIpc(ctx: IpcContext): void {
     openLogsFolder: async () => void (await shell.openPath(logsDir)),
     getUpdateStatus: async () => ctx.updates.get(),
     installUpdate: async () => ctx.updates.install(),
+    getStats: async () => repo.getStats(db),
     getAppInfo: async () => {
       const builtAt = repo.getMeta(db, 'data_built_at');
       return {

@@ -15,7 +15,7 @@ export const fmtDate = (iso?: string) =>
 export const fmtDay = (iso: string) =>
   new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-export { CHANGES, count, DOCS, plural, RULES } from '@shared/plural';
+export { CHANGES, count, DOCS, plural, PLAYERS, RULES } from '@shared/plural';
 /** «в 1 документе», «в 3 документах» */
 export const DOCS_IN = ['документе', 'документах', 'документах'] as const;
 export const CHANGES_NEW = ['новое', 'новых', 'новых'] as const;

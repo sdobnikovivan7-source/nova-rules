@@ -140,6 +140,60 @@
   background: var(--border);
 }
 
+/* плашка с числом игроков под «Избранным» */
+.players {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 11px;
+  margin: 10px 2px 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  background: linear-gradient(135deg, var(--accent-soft), transparent 70%), var(--bg-raised);
+  cursor: default;
+  -webkit-app-region: no-drag;
+}
+
+.players-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-chip);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.players-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.players-count {
+  color: var(--accent-text);
+  font-size: var(--fs-h2-card);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.players-count span {
+  color: var(--text);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+.players-sub {
+  color: var(--text-faint);
+  font-size: var(--fs-micro);
+  white-space: nowrap;
+}
+
 .nav-settings {
   margin-top: auto;
   background: var(--bg-raised);
