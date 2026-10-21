@@ -49,6 +49,13 @@ describe('diffRules', () => {
     expect(out[0]!.renumbered).toBeUndefined();
   });
 
+  it('пункт переписан целиком под тем же номером — «изменён»', () => {
+    const out = diffRules([rule('1.1', A), rule('1.2', B)], [rule('1.1', A), rule('1.2', N)]);
+    expect(out).toEqual([
+      expect.objectContaining({ type: 'changed', ruleId: '500:1.2', before: B, after: N }),
+    ]);
+  });
+
   it('изменено только наказание', () => {
     const out = diffRules([rule('2.2', C, 'Demorgan 30 мин')], [rule('2.2', C, 'Demorgan 60 мин')]);
     expect(out).toHaveLength(1);

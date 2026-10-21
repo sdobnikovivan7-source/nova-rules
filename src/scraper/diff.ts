@@ -114,7 +114,16 @@ export function diffRules(prev: Rule[], next: Rule[]): Draft[] {
     });
   }
 
-  // 4. без пары
+  // 4. тот же id, пункт переписан целиком: пары не нашлось — всё равно «изменён»,
+  //    а не «удалён» + «добавлен» с одним номером
+  for (const a of [...restPrev]) {
+    const b = nextById.get(a.id);
+    if (!b || !restNext.has(b)) continue;
+    pair(a, b);
+    out.push({ type: 'changed', ruleId: b.id, ruleNumber: b.number ?? undefined, before: ruleSummary(a), after: ruleSummary(b) });
+  }
+
+  // 5. без пары
   for (const a of restPrev)
     out.push({ type: 'removed', ruleId: a.id, ruleNumber: a.number ?? undefined, before: ruleSummary(a) });
   for (const b of restNext)
