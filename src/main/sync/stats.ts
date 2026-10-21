@@ -7,7 +7,7 @@
 import { type Stats, StatsSchema } from '@shared/schema';
 import type { Db } from '../db';
 import { getMeta, getStats, setMeta } from '../db/repo';
-import type { Fetcher } from './central';
+import { DATA_FETCH_CACHE, type Fetcher } from './central';
 
 export type StatsOptions = {
   db: Db;
@@ -31,7 +31,10 @@ export async function fetchStatsDaily(opts: StatsOptions): Promise<Stats | null>
     return null;
   for (const base of bases) {
     try {
-      const res = await fetch(`${base}/stats.json`, { signal: AbortSignal.timeout(timeoutMs) });
+      const res = await fetch(`${base}/stats.json`, {
+        signal: AbortSignal.timeout(timeoutMs),
+        cache: DATA_FETCH_CACHE,
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const stats = StatsSchema.parse(JSON.parse(await res.text()));
       setMeta(db, 'stats_json', JSON.stringify(stats));

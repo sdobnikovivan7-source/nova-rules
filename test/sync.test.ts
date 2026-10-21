@@ -2,7 +2,7 @@
  * Синхронизация на локальном HTTP-сервере: два «источника» (/cdn и /pages) отдают
  * опубликованные данные, собранные из фикстур форума.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { readFileSync } from 'node:fs';
@@ -17,6 +17,7 @@ import {
   AppOutdatedError,
   CentralUnavailableError,
   compareVersions,
+  type FetchCache,
   fetchCentral,
 } from '../src/main/sync/central';
 import { scrapeDirect } from '../src/main/sync/direct';
@@ -119,6 +120,21 @@ describe('sync central', () => {
     const res = await central(db);
     expect(res.kind).toBe('unchanged');
     expect(requests).toEqual(['/cdn/manifest.json']);
+  });
+
+  it('все запросы — со сверкой с сервером (не из HTTP-кеша: jsDelivr даёт max-age 7 дней)', async () => {
+    const v1 = publish(scraped.docs);
+    reset(v1);
+    const spy = vi.fn((url: string, init?: { cache?: FetchCache }) => fetch(url, init));
+    await fetchCentral({
+      db: openDb(':memory:'),
+      fetch: spy,
+      bases: bases(),
+      appVersion: '1.0.0',
+      timeoutMs: 5000,
+    });
+    expect(spy.mock.calls.length).toBeGreaterThan(1);
+    for (const [, init] of spy.mock.calls) expect(init?.cache).toBe('no-cache');
   });
 
   it('частичная докачка: только изменившийся документ (+ categories.json)', async () => {

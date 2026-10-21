@@ -12,7 +12,20 @@ import { IntegrityError, parseData, SchemaVersionError, sha1 } from '../data';
 import type { Db } from '../db';
 import { type DataInput, getDataFiles, getDataVersion, getMeta } from '../db/repo';
 
-export type Fetcher = (url: string, init?: { signal?: AbortSignal }) => Promise<Response>;
+/** Режим HTTP-кеша fetch (RequestCache из DOM — в tsconfig main его нет) */
+export type FetchCache = 'default' | 'no-store' | 'reload' | 'no-cache' | 'force-cache';
+
+export type Fetcher = (
+  url: string,
+  init?: { signal?: AbortSignal; cache?: FetchCache },
+) => Promise<Response>;
+
+/**
+ * jsDelivr разрешает хранить файлы 7 дней (max-age=604800), и net.fetch брал бы manifest.json
+ * из HTTP-кеша Chromium, не спрашивая сервер: новые правила не видны неделю, а изменившийся
+ * docs/*.json не сходится по sha1. no-cache — всегда сверка с сервером (не изменилось — 304).
+ */
+export const DATA_FETCH_CACHE: FetchCache = 'no-cache';
 
 /**
  * Все источники данных недоступны. `reachable` — хотя бы один сервер ответил по HTTP
@@ -61,7 +74,10 @@ export function compareVersions(a: string, b: string): number {
 }
 
 async function getText(fetch: Fetcher, url: string, timeoutMs: number): Promise<string> {
-  const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(timeoutMs),
+    cache: DATA_FETCH_CACHE,
+  });
   if (!res.ok) throw new HttpStatusError(`HTTP ${res.status}: ${url}`);
   return res.text();
 }
