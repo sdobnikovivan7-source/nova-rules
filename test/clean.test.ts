@@ -39,6 +39,14 @@ describe('linearize', () => {
     expect(out).not.toContain('script');
   });
 
+  it('цитата без кнопки «Нажмите, чтобы раскрыть...»', () => {
+    const html = `<blockquote class="bbCodeBlock bbCodeBlock--expandable bbCodeBlock--quote js-expandWatch">
+      <div class="bbCodeBlock-content"><div class="bbCodeBlock-expandContent js-expandContent">Важно: текст</div>
+      <div class="bbCodeBlock-expandLink js-expandLink"><a role="button" tabindex="0">Нажмите, чтобы раскрыть...</a></div>
+      </div></blockquote>`;
+    expect(lines(html).map((x) => lineText(x.segs))).toEqual(['Важно: текст']);
+  });
+
   it('пункты списка помечаются', () => {
     const l = lines('<ol><li>Один</li><li>Два<br>продолжение</li></ol>');
     expect(l.map((x) => x.list?.index ?? null)).toEqual([1, 2, null]);

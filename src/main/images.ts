@@ -8,7 +8,8 @@ import { mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { net, protocol } from 'electron';
 import log from 'electron-log/main';
-import { isAllowedImage } from './urls';
+import { sniffImage } from './imageType';
+import { imageSources, isAllowedImage } from './urls';
 
 export const IMG_SCHEME = 'nova-img';
 
@@ -45,14 +46,32 @@ export function installImageProtocol(cacheDir: string): void {
     return { data: await readFile(path.join(cacheDir, name)), mime: MIME[ext] ?? 'image/png' };
   }
 
-  async function download(url: string, key: string) {
+  async function fetchImage(url: string) {
     const res = await net.fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const mime = (res.headers.get('content-type') ?? '').split(';')[0]!.trim().toLowerCase();
-    const ext = EXT[mime];
-    if (!ext) throw new Error(`не картинка: ${mime || 'без типа'}`);
+    const header = (res.headers.get('content-type') ?? '').split(';')[0]!.trim().toLowerCase();
     const data = Buffer.from(await res.arrayBuffer());
     if (data.length > MAX_BYTES) throw new Error(`слишком большая: ${data.length} байт`);
+    // копии вложений форума на CDN — без расширения, тип по содержимому
+    const mime = EXT[header] ? header : sniffImage(data);
+    if (!mime) throw new Error(`не картинка: ${header || 'без типа'}`);
+    return { data, mime };
+  }
+
+  async function download(url: string, key: string) {
+    let found: { data: Buffer; mime: string } | undefined;
+    const errors: string[] = [];
+    for (const src of imageSources(url)) {
+      try {
+        found = await fetchImage(src);
+        break;
+      } catch (e) {
+        errors.push(`${src}: ${(e as Error).message}`);
+      }
+    }
+    if (!found) throw new Error(errors.join('; '));
+    const { data, mime } = found;
+    const ext = EXT[mime]!;
     await mkdir(cacheDir, { recursive: true });
     // запись через временный файл: оборванная загрузка не оставит битый кеш
     const file = path.join(cacheDir, `${key}.${ext}`);

@@ -148,6 +148,8 @@ class Linearizer {
     const tag = el.name.toLowerCase();
     const cls = el.attribs.class ?? '';
     if (SKIP_TAGS.has(tag)) return;
+    // кнопка «Нажмите, чтобы раскрыть...» у длинной цитаты — интерфейс форума, не текст
+    if (cls.includes('bbCodeBlock-expandLink')) return;
 
     if (tag === 'br') return this.flush();
 

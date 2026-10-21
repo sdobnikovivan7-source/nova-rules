@@ -1,6 +1,7 @@
 /** Чистые функции интерфейса: форматирование, прокси картинок, белый список хостингов */
 import { describe, expect, it } from 'vitest';
-import { isAllowedImage } from '../src/main/urls';
+import { sniffImage } from '../src/main/imageType';
+import { imageSources, isAllowedImage } from '../src/main/urls';
 import { proxyImages } from '../src/renderer/src/images';
 import { count, fmtWhen, plural, RULES, stripSectionNumber } from '../src/renderer/src/format';
 import { hotkeyFromEvent, hotkeyParts } from '../src/renderer/src/hotkey';
@@ -73,6 +74,39 @@ describe('isAllowedImage', () => {
     ['nova-img://img/x', false],
     ['не адрес', false],
   ])('%s → %s', (url, ok) => expect(isAllowedImage(url)).toBe(ok));
+});
+
+describe('imageSources', () => {
+  it('вложение форума — сначала копия в ветке data, форум последним', () => {
+    const src = imageSources('https://forum.grand-rp.su/attachments/5959/');
+    expect(src).toEqual([
+      'https://cdn.jsdelivr.net/gh/sdobnikovivan7-source/nova-rules@data/data/attachments/5959',
+      'https://sdobnikovivan7-source.github.io/nova-rules/data/attachments/5959',
+      'https://forum.grand-rp.su/attachments/5959/',
+    ]);
+    expect(imageSources('https://forum.grand-rp.su/attachments/map-png.6011/')[0]).toMatch(
+      /attachments\/6011$/,
+    );
+  });
+  it('прочие картинки — как есть', () => {
+    expect(imageSources('https://i.imgur.com/a.png')).toEqual(['https://i.imgur.com/a.png']);
+    expect(imageSources('https://forum.grand-rp.su/data/avatars/1.jpg')).toHaveLength(1);
+  });
+});
+
+describe('sniffImage', () => {
+  const b = (...x: (number | string)[]) =>
+    Uint8Array.from(
+      x.flatMap((v) => (typeof v === 'number' ? [v] : [...v].map((c) => c.charCodeAt(0)))),
+    );
+  it.each([
+    [b(0x89, 'PNG', 13, 10), 'image/png'],
+    [b(0xff, 0xd8, 0xff, 0xe0), 'image/jpeg'],
+    [b('GIF89a'), 'image/gif'],
+    [b('RIFF', 0, 0, 0, 0, 'WEBP'), 'image/webp'],
+    [b('{"x":1}'), undefined],
+    [b(), undefined],
+  ])('%#', (data, mime) => expect(sniffImage(data)).toBe(mime));
 });
 
 describe('пословный diff по-русски', () => {

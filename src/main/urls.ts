@@ -1,6 +1,7 @@
 /** Белые списки внешних адресов (§12). Без Electron — тестируется в vitest. */
 
 import { REPO_URL } from '@shared/ipc';
+import { DATA_BASES } from './sync/endpoints';
 
 const REPO_PATH = new URL(REPO_URL).pathname;
 
@@ -40,4 +41,16 @@ export function isAllowedImage(raw: string): boolean {
   }
   if (url.protocol !== 'https:' || url.username || url.password || url.port) return false;
   return IMAGE_HOSTS.some((h) => url.hostname === h || url.hostname.endsWith(`.${h}`));
+}
+
+const ATTACHMENT_RE = /^https:\/\/forum\.grand-rp\.su\/attachments\/(?:[^/?#]*\.)?(\d+)\/?$/;
+
+/**
+ * Откуда качать картинку. Вложения форума (`/attachments/<id>/`) закрыты проверкой
+ * браузера, поэтому их копии лежат в ветке `data` (`data/attachments/<id>`, без
+ * расширения — тип определяется по содержимому); сам форум — последним.
+ */
+export function imageSources(raw: string): string[] {
+  const id = ATTACHMENT_RE.exec(raw)?.[1];
+  return id ? [...DATA_BASES.map((b) => `${b}/attachments/${id}`), raw] : [raw];
 }

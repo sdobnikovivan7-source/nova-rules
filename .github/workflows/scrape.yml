@@ -49,9 +49,11 @@ jobs:
       - name: Проверка результата
         run: test -f out/data/manifest.json || { echo "::error::Данные не записаны (форум недоступен или закрыт антибот-проверкой) — публикация пропущена"; exit 1; }
 
-      # keep_files: false стёр бы stats.json (stats.yml) — переносим его из прошлой версии
-      - name: Сохранить stats.json
-        run: if [ -f prev/data/stats.json ]; then cp prev/data/stats.json out/data/stats.json; fi
+      # keep_files: false стёр бы stats.json (stats.yml) и копии вложений форума (ручная выгрузка) — переносим из прошлой версии
+      - name: Сохранить stats.json и вложения
+        run: |
+          if [ -f prev/data/stats.json ]; then cp prev/data/stats.json out/data/stats.json; fi
+          if [ -d prev/data/attachments ]; then cp -r prev/data/attachments out/data/attachments; fi
 
       - name: Публикация в ветку data
         uses: peaceiris/actions-gh-pages@v4
