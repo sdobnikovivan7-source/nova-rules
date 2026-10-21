@@ -6,7 +6,7 @@
  */
 import { type Stats, StatsSchema } from '@shared/schema';
 import type { Db } from '../db';
-import { getMeta, setMeta } from '../db/repo';
+import { getMeta, getStats, setMeta } from '../db/repo';
 import type { Fetcher } from './central';
 
 export type StatsOptions = {
@@ -26,7 +26,9 @@ export const localDay = (d: Date) =>
 export async function fetchStatsDaily(opts: StatsOptions): Promise<Stats | null> {
   const { db, fetch, bases, now = new Date(), timeoutMs = 15_000, log } = opts;
   const today = localDay(now);
-  if (getMeta(db, 'stats_fetched_on') === today) return null;
+  // сохранённый ответ без скачиваний (1.0.4–1.0.5 запрашивали раньше) — можно ещё раз сегодня
+  if (getMeta(db, 'stats_fetched_on') === today && getStats(db)?.downloads !== undefined)
+    return null;
   for (const base of bases) {
     try {
       const res = await fetch(`${base}/stats.json`, { signal: AbortSignal.timeout(timeoutMs) });

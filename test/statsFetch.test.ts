@@ -6,7 +6,7 @@ import { fetchStatsDaily, localDay } from '../src/main/sync/stats';
 
 const CDN = 'https://cdn.test/data';
 const MIRROR = 'https://mirror.test/data';
-const STATS = { players: 120, days: 7, updatedAt: '2026-10-21T04:37:00.000Z' };
+const STATS = { players: 120, days: 7, downloads: 54, updatedAt: '2026-10-21T04:37:00.000Z' };
 
 function fetcher(routes: Record<string, () => Response>) {
   return vi.fn(async (url: string) => {
@@ -39,6 +39,23 @@ describe('fetchStatsDaily', () => {
     await fetchStatsDaily({ db, fetch, bases: [CDN], now: new Date(2026, 9, 21, 23, 59) });
     await fetchStatsDaily({ db, fetch, bases: [CDN], now: new Date(2026, 9, 22, 0, 1) });
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('сегодня уже получен ответ без скачиваний (1.0.4–1.0.5) — можно запросить ещё раз', async () => {
+    const db = openDb(':memory:');
+    const now = new Date(2026, 9, 21, 9, 0);
+    const { downloads, ...old } = STATS;
+    void downloads;
+    await fetchStatsDaily({
+      db,
+      fetch: fetcher({ [`${CDN}/stats.json`]: json(old) }),
+      bases: [CDN],
+      now,
+    });
+    const fetch = fetcher({ [`${CDN}/stats.json`]: json(STATS) });
+    expect(await fetchStatsDaily({ db, fetch, bases: [CDN], now })).toEqual(STATS);
+    expect(await fetchStatsDaily({ db, fetch, bases: [CDN], now })).toBeNull();
+    expect(fetch).toHaveBeenCalledOnce();
   });
 
   it('CDN недоступен — с зеркала', async () => {
