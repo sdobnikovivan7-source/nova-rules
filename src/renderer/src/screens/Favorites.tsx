@@ -63,7 +63,7 @@ export function Favorites() {
 
   const groups = useMemo(() => (favs ? group(favs) : []), [favs]);
   const selected: RuleView | null = favs?.find((f) => f.ruleId === selectedId)?.rule ?? null;
-  const openMenu = useRuleMenu(selected?.docUrl);
+  const openMenu = useRuleMenu();
 
   return (
     <>

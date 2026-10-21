@@ -2,14 +2,16 @@
  * Поиск (макет «Поиск»): чипы категорий со счётчиками, фильтр наказания, «только важное»,
  * строка-пояснение, выдача по документам с подсветкой, правая панель с «Открыть в документе».
  * Строка запроса — в шапке (TopBar); ↑↓ выбирают пункт, Enter открывает его в документе.
+ * Выдача виртуальная (до 300 пунктов): в DOM только видимые строки.
  */
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronDown, Clock, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { RuleView } from '@shared/ipc';
 import type { Rule } from '@shared/schema';
 import { api } from '../api';
-import { Highlight } from '../components/Highlight';
+import { Highlight, type Range } from '../components/Highlight';
 import { RuleCard } from '../components/RuleCard';
 import { RulePanel } from '../components/RulePanel';
 import { Chip } from '../components/ui';
@@ -21,6 +23,7 @@ import {
   applyFilters,
   countByCategory,
   groupByDoc,
+  type HitGroup,
   PUNISH_FILTERS,
   type PunishFilter,
 } from '../search/filters';
@@ -78,7 +81,21 @@ export function Search() {
   const counts = useMemo(() => countByCategory(hits, filters), [hits, filters]);
   const groups = useMemo(() => groupByDoc(filtered), [filtered]);
   const flat = useMemo(() => groups.flatMap((g) => g.hits), [groups]);
+  /** Строки списка: заголовок документа, затем его пункты */
+  const items = useMemo(
+    () =>
+      groups.flatMap((g, gi): ListItem[] => [
+        { kind: 'head', key: `d${g.docId}`, group: g, first: gi === 0 },
+        ...g.hits.map((hit): ListItem => ({ kind: 'hit', key: hit.row.id, hit })),
+      ]),
+    [groups],
+  );
   const rules = useMemo(() => new Map(flat.map((h) => [h.row.id, toRule(h)])), [flat]);
+  // подсветка — по основам слов каждого пункта; один раз на выдачу, а не на каждую перерисовку
+  const ranges = useMemo(
+    () => new Map(flat.map((h) => [h.row.id, matchRanges(h.row.text, h.terms)])),
+    [flat],
+  );
   const selectedHit = flat.find((h) => h.row.id === selectedId);
 
   // новая выдача — выбран первый пункт (как в макете), если прежний выбор в неё не попал
@@ -112,8 +129,18 @@ export function Search() {
     [select, remember],
   );
 
-  // ↑↓ — выбор пункта, Enter — открыть в документе (из поля поиска тоже)
   const listRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: items.length,
+    getScrollElement: () => listRef.current,
+    estimateSize: (i) => (items[i]?.kind === 'hit' ? 76 : 50),
+    getItemKey: (i) => items[i]!.key,
+    overscan: 8,
+  });
+  // новая выдача — с начала списка
+  useEffect(() => virtualizer.scrollToOffset(0), [result, virtualizer]);
+
+  // ↑↓ — выбор пункта, Enter — открыть в документе (из поля поиска тоже)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
@@ -126,9 +153,8 @@ export function Search() {
         const next = e.key === 'ArrowDown' ? Math.min(flat.length - 1, i + 1) : Math.max(0, i - 1);
         const id = flat[next]!.row.id;
         select(id);
-        listRef.current
-          ?.querySelector(`[data-rule="${CSS.escape(id)}"]`)
-          ?.scrollIntoView({ block: 'nearest' });
+        const at = items.findIndex((it) => it.key === id);
+        if (at >= 0) virtualizer.scrollToIndex(next === 0 ? 0 : at, { align: 'auto' });
       } else if (e.key === 'Enter' && i >= 0 && (t.tagName === 'INPUT' || t === document.body)) {
         e.preventDefault();
         openInDoc(flat[i]!);
@@ -136,9 +162,9 @@ export function Search() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [flat, select, openInDoc]);
+  }, [flat, items, select, openInDoc, virtualizer]);
 
-  const openMenu = useRuleMenu(panelRule?.docUrl);
+  const openMenu = useRuleMenu();
   const catTitle = (id: string) => categories.find((c) => c.id === id)?.title ?? '';
   const punishLabel = PUNISH_FILTERS.find((p) => p.value === filters.punish)!.label;
   const searching = !!query.trim() && result?.query !== query.trim();
@@ -203,40 +229,42 @@ export function Search() {
             </header>
 
             <div ref={listRef} className={`scroll rule-list${searching ? ' is-stale' : ''}`}>
-              {groups.map((g) => (
-                <section key={g.docId} className="hit-group" aria-label={g.docTitle}>
-                  <h2 className="hit-group-head">
-                    <button
-                      type="button"
-                      className="hit-doc"
-                      onClick={() => void navigate(`/doc/${g.docId}`)}
+              <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+                {virtualizer.getVirtualItems().map((v) => {
+                  const it = items[v.index]!;
+                  return (
+                    <div
+                      key={v.key}
+                      ref={virtualizer.measureElement}
+                      data-index={v.index}
+                      className="vrow"
+                      style={{ transform: `translateY(${v.start}px)` }}
                     >
-                      {g.docTitle}
-                    </button>
-                    <span className="hit-cat">{catTitle(g.categoryId)}</span>
-                  </h2>
-                  {g.hits.map((h) => (
-                    <RuleCard
-                      key={h.row.id}
-                      rule={rules.get(h.row.id)!}
-                      selected={h.row.id === selectedId}
-                      showNotes={false}
-                      body={
-                        <Highlight text={h.row.text} ranges={matchRanges(h.row.text, h.terms)} />
-                      }
-                      footer={
-                        h.row.sectionTitle && (
-                          <span className="rule-footer">
-                            {stripSectionNumber(h.row.sectionTitle)}
-                          </span>
-                        )
-                      }
-                      onSelect={onSelect}
-                      onContextMenu={openMenu}
-                    />
-                  ))}
-                </section>
-              ))}
+                      {it.kind === 'head' ? (
+                        <h2 className={`hit-group-head${it.first ? ' first' : ''}`}>
+                          <button
+                            type="button"
+                            className="hit-doc"
+                            onClick={() => void navigate(`/doc/${it.group.docId}`)}
+                          >
+                            {it.group.docTitle}
+                          </button>
+                          <span className="hit-cat">{catTitle(it.group.categoryId)}</span>
+                        </h2>
+                      ) : (
+                        <HitRow
+                          hit={it.hit}
+                          rule={rules.get(it.key)!}
+                          ranges={ranges.get(it.key)!}
+                          selected={it.key === selectedId}
+                          onSelect={onSelect}
+                          onContextMenu={openMenu}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
               {result && filtered.length === 0 && (
                 <p className="empty">
                   {hits.length
@@ -262,6 +290,37 @@ export function Search() {
     </>
   );
 }
+
+type ListItem =
+  | { kind: 'head'; key: string; group: HitGroup; first: boolean }
+  | { kind: 'hit'; key: string; hit: Hit };
+
+/** Пункт выдачи: перерисовывается, только если сменился он сам или выбор */
+const HitRow = memo(function HitRow(props: {
+  hit: Hit;
+  rule: Rule;
+  ranges: Range[];
+  selected: boolean;
+  onSelect(rule: Rule): void;
+  onContextMenu(rule: Rule, e: MouseEvent): void;
+}) {
+  const { hit, rule, ranges, selected, onSelect, onContextMenu } = props;
+  return (
+    <RuleCard
+      rule={rule}
+      selected={selected}
+      showNotes={false}
+      body={<Highlight text={hit.row.text} ranges={ranges} />}
+      footer={
+        hit.row.sectionTitle && (
+          <span className="rule-footer">{stripSectionNumber(hit.row.sectionTitle)}</span>
+        )
+      }
+      onSelect={onSelect}
+      onContextMenu={onContextMenu}
+    />
+  );
+});
 
 /** Пустой запрос: подсказка и последние запросы */
 function SearchStart(props: {

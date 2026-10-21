@@ -14,12 +14,21 @@ class FakeUpdater extends EventEmitter implements UpdaterLike {
   quitAndInstall = vi.fn();
 }
 
-function setup() {
+function setup(idle = { value: false }) {
   const updater = new FakeUpdater();
   const seen: UpdateStatus[] = [];
-  const service = new UpdateService({ updater, emit: (s) => seen.push(s), log: () => {} });
-  return { updater, service, seen };
+  const beforeAutoInstall = vi.fn();
+  const service = new UpdateService({
+    updater,
+    emit: (s) => seen.push(s),
+    log: () => {},
+    isIdle: () => idle.value,
+    beforeAutoInstall,
+  });
+  return { updater, service, seen, idle, beforeAutoInstall };
 }
+
+const MIN = 60_000;
 
 describe('UpdateService', () => {
   it('включает фоновое скачивание и установку при выходе', () => {
@@ -70,5 +79,39 @@ describe('UpdateService', () => {
     });
     await expect(service.check()).resolves.toBeUndefined();
     expect(service.get().state).toBe('idle');
+  });
+
+  it('окна скрыты 2 мин после «готово» — ставится само, новая версия стартует в трей', () => {
+    const { updater, service, beforeAutoInstall } = setup({ value: true });
+    expect(service.autoInstallIfIdle(0)).toBe(false); // ещё не скачано
+    updater.emit('update-downloaded', { version: '1.2.0' });
+    expect(service.autoInstallIfIdle(0)).toBe(false);
+    expect(service.autoInstallIfIdle(1.5 * MIN)).toBe(false);
+    expect(service.autoInstallIfIdle(2 * MIN)).toBe(true);
+    expect(beforeAutoInstall).toHaveBeenCalledOnce();
+    expect(updater.quitAndInstall).toHaveBeenCalledWith(true, true);
+    // установщик не запустился — повторно не пытается
+    expect(service.autoInstallIfIdle(10 * MIN)).toBe(false);
+    expect(updater.quitAndInstall).toHaveBeenCalledOnce();
+  });
+
+  it('окно открыли — отсчёт простоя начинается заново', () => {
+    const { updater, service, idle } = setup({ value: true });
+    updater.emit('update-downloaded', { version: '1.2.0' });
+    service.autoInstallIfIdle(0);
+    idle.value = false;
+    expect(service.autoInstallIfIdle(1.5 * MIN)).toBe(false);
+    idle.value = true;
+    expect(service.autoInstallIfIdle(2 * MIN)).toBe(false);
+    expect(service.autoInstallIfIdle(3.9 * MIN)).toBe(false);
+    expect(service.autoInstallIfIdle(4 * MIN)).toBe(true);
+  });
+
+  it('окно открыто — сам не перезапускает', () => {
+    const { updater, service } = setup({ value: false });
+    updater.emit('update-downloaded', { version: '1.2.0' });
+    expect(service.autoInstallIfIdle(0)).toBe(false);
+    expect(service.autoInstallIfIdle(60 * MIN)).toBe(false);
+    expect(updater.quitAndInstall).not.toHaveBeenCalled();
   });
 });

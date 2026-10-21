@@ -66,6 +66,7 @@ export function QuickSearch() {
   }, [query, revision]);
 
   const hits = useMemo(() => result?.hits.slice(0, LIMIT) ?? [], [result]);
+  const ranges = useMemo(() => hits.map((h) => matchRanges(h.row.text, h.terms)), [hits]);
   const current: Hit | undefined = hits[index];
 
   const hide = useCallback(() => api.quick.hide(), []);
@@ -182,7 +183,7 @@ export function QuickSearch() {
                 <span className="quick-num mono">{h.row.number ?? ''}</span>
                 <span className="quick-main">
                   <span className="quick-text">
-                    <Highlight text={h.row.text} ranges={matchRanges(h.row.text, h.terms)} />
+                    <Highlight text={h.row.text} ranges={ranges[i]!} />
                   </span>
                   {open && h.row.notes && <span className="quick-notes">{h.row.notes}</span>}
                   <span className="quick-path">

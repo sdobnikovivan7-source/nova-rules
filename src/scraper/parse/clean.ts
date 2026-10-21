@@ -9,7 +9,6 @@
  */
 import * as cheerio from 'cheerio';
 import type { AnyNode, Element } from 'domhandler';
-import sanitizeHtml from 'sanitize-html';
 
 export type Fmt = {
   b?: boolean;
@@ -291,24 +290,4 @@ export function lineText(segs: Seg[]): string {
     .trim();
 }
 
-// ---------------------------------------------------------------- санитизация
-
-const SANITIZE: sanitizeHtml.IOptions = {
-  allowedTags: ['b', 'i', 'u', 's', 'br', 'a', 'img', 'span', 'details', 'summary', 'ul', 'ol', 'li', 'p'],
-  allowedAttributes: {
-    a: ['href'],
-    img: ['src', 'alt'],
-    span: ['class'],
-  },
-  allowedClasses: { span: ['punish'] },
-  allowedSchemes: ['https', 'http'],
-  allowProtocolRelative: false,
-};
-
-/**
- * Финальная санитизация по белому списку. Вызывается в сборщике перед
- * публикацией и повторно в приложении перед записью в БД.
- */
-export function sanitizeRuleHtml(html: string): string {
-  return sanitizeHtml(html, SANITIZE);
-}
+export { sanitizeRuleHtml } from './sanitize';

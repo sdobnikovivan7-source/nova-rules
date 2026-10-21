@@ -1,13 +1,18 @@
 /**
  * Автообновление приложения (§11.2): electron-updater проверяет GitHub Releases при старте
  * и раз в 6 ч, скачивает в фоне; готово — в строке состояния «Доступна версия X —
- * перезапустить». Не перезапустили — установится при выходе.
+ * перезапустить». Если приложением не пользуются (окна скрыты в трее) — ставится само:
+ * тихая установка и запуск новой версии сразу в трей. Иначе — по кнопке или при выходе.
  * Работает только в собранном приложении (в dev обновлять нечего).
  */
 import type { UpdateStatus } from '@shared/ipc';
 
 const START_DELAY = 15_000;
 const INTERVAL = 6 * 3_600_000;
+/** Как часто смотреть, не пора ли поставить скачанное обновление */
+const IDLE_CHECK = 30_000;
+/** Сколько окна должны быть скрыты подряд: только что спрятал быстрый поиск — может открыть снова */
+const IDLE_MIN = 2 * 60_000;
 
 /** Нужная часть autoUpdater — в тестах подменяется */
 export interface UpdaterLike {
@@ -22,11 +27,18 @@ type Deps = {
   updater: UpdaterLike;
   emit(status: UpdateStatus): void;
   log(level: 'info' | 'warn', msg: string): void;
+  /** Приложением сейчас не пользуются — можно перезапустить незаметно */
+  isIdle?(): boolean;
+  /** Перед тихой установкой: новая версия должна запуститься свёрнутой в трей */
+  beforeAutoInstall?(): void;
 };
 
 export class UpdateService {
   private status: UpdateStatus = { state: 'idle' };
   private timers: ReturnType<typeof setTimeout>[] = [];
+  private idleSince: number | null = null;
+  /** Одна попытка: если установщик не запустился, дальше — по кнопке или при выходе */
+  private autoTried = false;
 
   constructor(private readonly deps: Deps) {
     const u = deps.updater;
@@ -87,9 +99,26 @@ export class UpdateService {
     this.deps.updater.quitAndInstall(true, true);
   }
 
+  /** Обновление готово и окна скрыты дольше IDLE_MIN — поставить само */
+  autoInstallIfIdle(now = Date.now()): boolean {
+    if (this.autoTried) return false;
+    if (this.status.state !== 'ready' || !this.deps.isIdle?.()) {
+      this.idleSince = null;
+      return false;
+    }
+    this.idleSince ??= now;
+    if (now - this.idleSince < IDLE_MIN) return false;
+    this.deps.log('info', `обновление ${this.status.version}: окна скрыты — ставлю само`);
+    this.autoTried = true;
+    this.deps.beforeAutoInstall?.();
+    this.deps.updater.quitAndInstall(true, true);
+    return true;
+  }
+
   schedule(): () => void {
     this.timers.push(setTimeout(() => void this.check(), START_DELAY));
     this.timers.push(setInterval(() => void this.check(), INTERVAL));
+    this.timers.push(setInterval(() => this.autoInstallIfIdle(), IDLE_CHECK));
     return () => this.timers.forEach((t) => clearTimeout(t));
   }
 }

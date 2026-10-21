@@ -79,8 +79,14 @@
   padding-bottom: 6px;
 }
 
-.hit-group:first-child .hit-group-head {
+.hit-group:first-child .hit-group-head,
+.hit-group-head.first {
   padding-top: 12px;
+}
+
+/* виртуальная выдача поиска: отступ между документами — над заголовком следующего */
+.vrow > .hit-group-head:not(.first) {
+  padding-top: 22px;
 }
 
 .hit-group-head {

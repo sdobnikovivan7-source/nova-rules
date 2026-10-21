@@ -16,7 +16,13 @@ export type WindowState = {
 /** Положение и размер окна быстрого поиска, если пользователь его двигал или растягивал */
 export type QuickBounds = { x: number; y: number; width: number; height: number };
 
-type Schema = { settings: Settings; window: WindowState; quick?: QuickBounds };
+type Schema = {
+  settings: Settings;
+  window: WindowState;
+  quick?: QuickBounds;
+  /** Перезапуск после тихого автообновления — следующий старт свёрнутым в трей */
+  restartHidden?: boolean;
+};
 
 let store: Store<Schema> | null = null;
 
@@ -51,3 +57,11 @@ export const setWindowState = (s: WindowState): void => getStore().set('window',
 export const getQuickBounds = (): QuickBounds | undefined => getStore().get('quick');
 export const setQuickBounds = (b: QuickBounds): void => getStore().set('quick', b);
 export const clearQuickBounds = (): void => getStore().delete('quick');
+
+export const markRestartHidden = (): void => getStore().set('restartHidden', true);
+/** Прочитать и сбросить: флаг действует на один запуск */
+export function takeRestartHidden(): boolean {
+  const v = getStore().get('restartHidden') === true;
+  if (v) getStore().delete('restartHidden');
+  return v;
+}

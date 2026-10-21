@@ -22,7 +22,7 @@ import type {
   RuleDoc,
   Section,
 } from '@shared/schema';
-import { sanitizeRuleHtml } from '../../scraper/parse/clean';
+import { sanitizeRuleHtml } from '../../scraper/parse/sanitize';
 import type { Db } from './index';
 
 // ---------- meta

@@ -9,16 +9,22 @@ import { api } from './api';
 import { ruleIssueUrl } from './issues';
 import { useApp } from './store';
 
-export function useRuleMenu(docUrl: string | undefined): (rule: Rule, e: MouseEvent) => void {
+/**
+ * docUrl — тема документа, если все пункты списка из одного документа. В поиске и избранном
+ * пункты из разных документов: ссылка берётся у того пункта, по которому кликнули.
+ */
+export function useRuleMenu(docUrl?: string): (rule: Rule, e: MouseEvent) => void {
   return useCallback(
     (rule, e) => {
       e.preventDefault();
-      void api.showRuleMenu(rule.id).then((action) => {
-        if (action === 'copy') void copyRule(rule.id);
-        else if (action === 'favorite') void useApp.getState().toggleFavorite(rule.id);
-        else if (action === 'forum' && docUrl) void api.openExternal(docUrl);
-        else if (action === 'report' && docUrl)
-          void api.openExternal(ruleIssueUrl(rule, docUrl, useApp.getState().info ?? {}));
+      void api.showRuleMenu(rule.id).then(async (action) => {
+        if (action === 'copy') return void copyRule(rule.id);
+        if (action === 'favorite') return void useApp.getState().toggleFavorite(rule.id);
+        if (action !== 'forum' && action !== 'report') return;
+        const url = docUrl ?? (await api.getRule(rule.id))?.docUrl;
+        if (!url) return;
+        if (action === 'forum') void api.openExternal(url);
+        else void api.openExternal(ruleIssueUrl(rule, url, useApp.getState().info ?? {}));
       });
     },
     [docUrl],

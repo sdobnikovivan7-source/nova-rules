@@ -10,6 +10,29 @@ let current: string | null = null;
 let failed = false;
 let paused = false;
 let handler: (() => void) | null = null;
+/** Сочетание занято — пробуем снова раз в минуту: другая программа могла его отпустить */
+let retry: NodeJS.Timeout | null = null;
+const RETRY_MS = 60_000;
+/** Сочетание освободилось и зарегистрировано — обновить строку состояния */
+let onLateRegister: (() => void) | undefined;
+
+function stopRetry(): void {
+  if (retry) clearInterval(retry);
+  retry = null;
+}
+
+function retryLater(): void {
+  if (retry) return;
+  retry = setInterval(() => {
+    if (!failed || paused || !current || !handler) return stopRetry();
+    if (tryRegister(current, handler)) {
+      failed = false;
+      stopRetry();
+      log.info(`горячая клавиша ${current} освободилась — зарегистрирована`);
+      onLateRegister?.();
+    }
+  }, RETRY_MS);
+}
 
 /** Удалось ли зарегистрировать текущее сочетание */
 export const hotkeyRegistered = () => current !== null && !failed;
@@ -25,11 +48,19 @@ function tryRegister(accel: string, onPress: () => void): boolean {
 }
 
 /** При старте: не получилось — приложение работает, просто без горячей клавиши */
-export function registerQuickHotkey(accel: string, onPress: () => void): boolean {
+export function registerQuickHotkey(
+  accel: string,
+  onPress: () => void,
+  onLate?: () => void,
+): boolean {
   current = accel;
   handler = onPress;
+  onLateRegister = onLate;
   failed = !tryRegister(accel, onPress);
-  if (failed) log.warn(`горячая клавиша ${accel} занята другой программой`);
+  if (failed) {
+    log.warn(`горячая клавиша ${accel} занята другой программой`);
+    retryLater();
+  }
   return !failed;
 }
 
@@ -45,6 +76,7 @@ export function changeQuickHotkey(accel: string, onPress: () => void): boolean {
   current = accel;
   handler = onPress;
   failed = false;
+  stopRetry();
   return true;
 }
 
@@ -56,9 +88,13 @@ export function setHotkeyPaused(pause: boolean): void {
   if (pause === paused || !current || failed || !handler) return;
   paused = pause;
   if (pause) globalShortcut.unregister(current);
-  else if (!tryRegister(current, handler)) failed = true;
+  else if (!tryRegister(current, handler)) {
+    failed = true;
+    retryLater();
+  }
 }
 
 export function unregisterHotkeys(): void {
+  stopRetry();
   globalShortcut.unregisterAll();
 }
