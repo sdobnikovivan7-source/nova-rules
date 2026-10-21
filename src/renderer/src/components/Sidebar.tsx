@@ -6,6 +6,7 @@
 import {
   BookOpen,
   Crosshair,
+  Download,
   FileText,
   Flag,
   History,
@@ -20,30 +21,57 @@ import {
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
-import { plural, PLAYERS } from '../format';
+import { DOWNLOADS, plural, PLAYERS } from '../format';
 import { useApp } from '../store';
 
-/** Меньше — плашку не показываем: «≈ 3 игрока» скорее отпугивает */
-const MIN_PLAYERS = 10;
+/** Меньше — число не показываем: «≈ 3 игрока» скорее отпугивает */
+const MIN_SHOWN = 10;
 
-/** Примерное число игроков (этап 12): оценка по запросам stats.json за неделю */
+/** «47», от 50 — вниз до десятков с плюсом: «50+», «120+» */
+const roughly = (n: number) =>
+  n < 50 ? `${n}` : `${(Math.floor(n / 10) * 10).toLocaleString('ru-RU')}+`;
+
+/**
+ * Плашка под «Избранным» (этап 12): примерное число игроков в день — оценка по запросам
+ * stats.json за неделю. Пока игроков меньше 10 (статистика jsDelivr копится несколько дней) —
+ * сколько раз скачали установщик. Оба числа настоящие, из data/stats.json.
+ */
 function PlayersBadge() {
   const stats = useApp((s) => s.stats);
-  if (!stats || stats.players < MIN_PLAYERS) return null;
-  const n = stats.players;
+  if (!stats) return null;
+  const players = stats.players >= MIN_SHOWN;
+  const downloads = stats.downloads ?? 0;
+  if (!players && downloads < MIN_SHOWN) return null;
   return (
     <div
       className="players"
-      title="Сколько игроков в среднем открывают программу за день — оценка по числу проверок правил за последние 7 дней. Программа не отправляет данных о вас."
+      title={
+        players
+          ? 'Сколько игроков в среднем открывают программу за день — оценка по числу проверок правил за последние 7 дней. Программа не отправляет данных о вас.'
+          : 'Сколько раз скачали установщик с GitHub, вместе с обновлениями. Когда накопится статистика, здесь будет число игроков в день.'
+      }
     >
       <span className="players-icon" aria-hidden>
-        <UsersRound size={17} strokeWidth={2} />
+        {players ? (
+          <UsersRound size={17} strokeWidth={2} />
+        ) : (
+          <Download size={17} strokeWidth={2} />
+        )}
       </span>
       <span className="players-text">
-        <span className="players-count">
-          ≈ {n.toLocaleString('ru-RU')} <span>{plural(n, PLAYERS)}</span>
-        </span>
-        <span className="players-sub">в среднем в день</span>
+        {players ? (
+          <span className="players-count">
+            ≈ {stats.players.toLocaleString('ru-RU')} <span>{plural(stats.players, PLAYERS)}</span>
+          </span>
+        ) : (
+          <span className="players-count">
+            {roughly(downloads)}{' '}
+            <span>
+              {plural(downloads < 50 ? downloads : Math.floor(downloads / 10) * 10, DOWNLOADS)}
+            </span>
+          </span>
+        )}
+        <span className="players-sub">{players ? 'в среднем в день' : 'программы с GitHub'}</span>
       </span>
     </div>
   );

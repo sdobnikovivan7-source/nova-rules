@@ -16,6 +16,21 @@ export type JsdelivrFiles = { name: string; hits: { dates: Record<string, number
 
 const day = (d: Date) => d.toISOString().slice(0, 10);
 
+/** Ответ api.github.com/repos/<owner>/<repo>/releases — нужные поля */
+export type GithubReleases = {
+  draft: boolean;
+  assets: { name: string; download_count: number }[];
+}[];
+
+/** Скачивания установщика во всех опубликованных релизах (.blockmap и latest.yml не считаются) */
+export function sumDownloads(releases: GithubReleases): number {
+  return releases
+    .filter((r) => !r.draft)
+    .flatMap((r) => r.assets)
+    .filter((a) => a.name.endsWith('.exe'))
+    .reduce((n, a) => n + a.download_count, 0);
+}
+
 /** null — статистики по файлу ещё нет (никто не запрашивал) */
 export function computeStats(files: JsdelivrFiles, now: Date): Stats | null {
   const dates = files.find((f) => f.name === STATS_FILE)?.hits.dates;

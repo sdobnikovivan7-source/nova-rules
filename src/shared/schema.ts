@@ -185,6 +185,8 @@ export const StatsSchema = z.object({
   /** Среднее число запросов stats.json в день за `days` последних полных дней */
   players: z.number().int().min(0),
   days: z.number().int().min(0),
+  /** Сколько раз скачали установщик с GitHub Releases (вместе с автообновлениями) */
+  downloads: z.number().int().min(0).optional(),
   updatedAt: z.string(),
 });
 export type Stats = z.infer<typeof StatsSchema>;

@@ -3,45 +3,73 @@
  *
  *   pnpm stats --out <путь к data/stats.json>
  *
- * Ошибка API jsDelivr или нет статистики — файл не трогается (код 0: игроки увидят прошлое число).
- * Файла ещё нет — создаётся с нулём.
+ * Игроки — по статистике jsDelivr, скачивания — по GitHub Releases. Источник недоступен —
+ * берётся прошлое значение; недоступны оба — файл не трогается (код 0). Файла ещё нет — создаётся.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { StatsSchema } from '../src/shared/schema';
-import { computeStats, type JsdelivrFiles } from '../src/scraper/stats';
+import { type Stats, StatsSchema } from '../src/shared/schema';
+import {
+  computeStats,
+  type GithubReleases,
+  type JsdelivrFiles,
+  sumDownloads,
+} from '../src/scraper/stats';
 
-const API =
-  'https://data.jsdelivr.com/v1/stats/packages/gh/sdobnikovivan7-source/nova-rules@data/files?period=month';
+const REPO = 'sdobnikovivan7-source/nova-rules';
+const JSDELIVR = `https://data.jsdelivr.com/v1/stats/packages/gh/${REPO}@data/files?period=month`;
+const RELEASES = `https://api.github.com/repos/${REPO}/releases?per_page=100`;
 
 const { values: args } = parseArgs({ options: { out: { type: 'string' } } });
 if (!args.out) throw new Error('Укажите --out <путь к stats.json>');
 const out = path.resolve(args.out);
 
-async function main(): Promise<string> {
-  let files: JsdelivrFiles;
+async function getJson<T>(url: string, headers: Record<string, string> = {}): Promise<T | null> {
   try {
-    const res = await fetch(API, { signal: AbortSignal.timeout(30_000) });
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(30_000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    files = (await res.json()) as JsdelivrFiles;
+    return (await res.json()) as T;
   } catch (e) {
-    return `Статистика jsDelivr недоступна (${(e as Error).message}) — stats.json не меняется`;
+    console.log(`${url}: ${(e as Error).message}`);
+    return null;
   }
+}
 
-  const now = new Date();
+async function main(): Promise<string> {
+  const token = process.env['GITHUB_TOKEN'];
+  const [files, releases] = await Promise.all([
+    getJson<JsdelivrFiles>(JSDELIVR),
+    getJson<GithubReleases>(RELEASES, token ? { authorization: `Bearer ${token}` } : {}),
+  ]);
   const prev = await readFile(out, 'utf8')
     .then((t) => StatsSchema.parse(JSON.parse(t)))
     .catch(() => null);
-  // запросов ещё нет: файла нет на CDN — создаём с нулём, иначе его некому запрашивать
-  const stats =
-    computeStats(files, now) ??
-    (prev ? null : { players: 0, days: 0, updatedAt: now.toISOString() });
-  if (!stats) return 'Запросов stats.json ещё нет — stats.json не меняется';
-  if (prev && prev.players === stats.players && prev.days === stats.days)
-    return `Без изменений: ≈ ${stats.players} игроков за ${stats.days} дн.`;
-  await writeFile(out, JSON.stringify(StatsSchema.parse(stats)));
-  return `stats.json: ≈ ${stats.players} игроков за ${stats.days} дн. → ${out}`;
+  if (!files && !releases && prev) return 'jsDelivr и GitHub недоступны — stats.json не меняется';
+
+  const now = new Date();
+  // запросов stats.json ещё нет в статистике — остаётся прошлое число (или 0)
+  const players = (files && computeStats(files, now)) ?? {
+    players: prev?.players ?? 0,
+    days: prev?.days ?? 0,
+  };
+  const downloads = releases ? sumDownloads(releases) : prev?.downloads;
+  const next: Stats = {
+    players: players.players,
+    days: players.days,
+    ...(downloads !== undefined ? { downloads } : {}),
+    updatedAt: now.toISOString(),
+  };
+  const summary = `≈ ${next.players} игроков за ${next.days} дн., скачиваний ${next.downloads ?? '—'}`;
+  if (
+    prev &&
+    prev.players === next.players &&
+    prev.days === next.days &&
+    prev.downloads === next.downloads
+  )
+    return `Без изменений: ${summary}`;
+  await writeFile(out, JSON.stringify(StatsSchema.parse(next)));
+  return `stats.json: ${summary} → ${out}`;
 }
 
 console.log(await main());

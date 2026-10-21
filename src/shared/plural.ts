@@ -17,3 +17,4 @@ export const RULES = ['пункт', 'пункта', 'пунктов'] as const;
 export const DOCS = ['документ', 'документа', 'документов'] as const;
 export const CHANGES = ['изменение', 'изменения', 'изменений'] as const;
 export const PLAYERS = ['игрок', 'игрока', 'игроков'] as const;
+export const DOWNLOADS = ['скачивание', 'скачивания', 'скачиваний'] as const;

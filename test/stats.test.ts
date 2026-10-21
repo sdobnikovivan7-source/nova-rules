@@ -1,6 +1,19 @@
 /** Оценка числа игроков по статистике jsDelivr (этап 12) */
 import { describe, expect, it } from 'vitest';
-import { computeStats, type JsdelivrFiles, STATS_FILE } from '../src/scraper/stats';
+import { computeStats, type JsdelivrFiles, STATS_FILE, sumDownloads } from '../src/scraper/stats';
+
+describe('sumDownloads', () => {
+  it('только установщики опубликованных релизов', () => {
+    const exe = (n: number) => ({ name: 'NOVA-Rules-Setup-1.0.0.exe', download_count: n });
+    expect(
+      sumDownloads([
+        { draft: false, assets: [exe(26), { name: 'latest.yml', download_count: 900 }] },
+        { draft: false, assets: [exe(11), { name: 'x.exe.blockmap', download_count: 50 }] },
+        { draft: true, assets: [exe(7)] },
+      ]),
+    ).toBe(37);
+  });
+});
 
 const NOW = new Date('2026-10-21T04:30:00.000Z');
 
